@@ -1,0 +1,6 @@
+@CG_HostAddress = http://localhost:5094
+
+GET {{CG_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
