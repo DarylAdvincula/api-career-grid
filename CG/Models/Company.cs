@@ -36,7 +36,7 @@ namespace CG.Models
         public DateTime CreatedAt { get; init; } = DateTime.Now;
 
         // admin
-        public UserAccount ApprovedByAdmin { get; set; } = null!;
+        public UserAccount? ApprovedByAdmin { get; set; } = null!;
         
         // +1 check
         // [x] VerificationStatus is in VerificationStatuses enum

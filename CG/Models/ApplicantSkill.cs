@@ -14,7 +14,7 @@ namespace CG.Models
         public int ApplicantProfileId { get; set; }
         public int SkillId { get; set; }
 
-        public ProficiencyLevel ProficiencyLevel { get; set; }
+        public ProficiencyLevel? ProficiencyLevel { get; set; }
         public int? YearsOfExperience { get; set; }
         public ApplicantProfile ApplicantProfile { get; set; } = null!;
         public Skill Skill { get; set; } = null!;

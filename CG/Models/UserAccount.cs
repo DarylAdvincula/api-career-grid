@@ -26,8 +26,8 @@ namespace CG.Models
         public string LastName { get; set; } = string.Empty;
         public Role Role { get; set; }
         public bool IsVerified { get; set; }
-        public string VerificationCode { get; set; } = string.Empty;
-        public DateTime VerificationExpiry { get; set; }
+        public string? VerificationCode { get; set; }
+        public DateTime? VerificationExpiry { get; set; }
         public DateTime CreatedAt { get; init; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 

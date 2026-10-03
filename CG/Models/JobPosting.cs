@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CG.Models
 {
@@ -12,14 +13,14 @@ namespace CG.Models
 
     public enum JobType
     {
-        FullTime,               // Full Time
-        PartTime,               // Part Time
-        ContractualTemporary    // Contractual/Temporary
+        Full_Time,
+        Part_Time,
+        Contractual_Temporary
     }
 
     public enum WorkEnvironment
     {
-        OnSite, // On-site
+        On_Site,
         Hybrid,
         Remote
     }
@@ -42,8 +43,13 @@ namespace CG.Models
         public JobType? JobType { get; set; }
         public WorkEnvironment? WorkEnvironment { get; set; }
         public string? Location { get; set; }
-        public decimal MinSalary { get; set; }
-        public decimal MaxSalary { get; set; }
+
+        [Column(TypeName = "money")]
+        public decimal? MinSalary { get; set; }
+
+        [Column(TypeName = "money")]
+        public decimal? MaxSalary { get; set; }
+        
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Draft;
         public DateTime? ApprovedAt { get; set; }
         public bool IsActive { get; set; } = true;
@@ -51,9 +57,9 @@ namespace CG.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public Company Company { get; set; } = null!;
         public UserAccount CreatedByEmployer { get; set; } = null!;
-        public UserAccount ApprovedByAdmin { get; set; } = null!;
-        public JobClassification JobClassification { get; set; } = null!;
-        public JobSubClassification JobSubClassification { get; set; } = null!;
+        public JobClassification? JobClassification { get; set; } = null!;
+        public JobSubClassification? JobSubClassification { get; set; } = null!;
+        public UserAccount? ApprovedByAdmin { get; set; } = null!;
 
         // +4 checks
         // [x] ApprovalStatus is in ApprovalStatus enum

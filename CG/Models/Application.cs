@@ -17,7 +17,7 @@ namespace CG.Models
         public int Id { get; set; }
         public int JobPostingId { get; set; }
         public int ApplicantProfileId { get; set; }
-        public int ResumeId { get; set; }
+        public int? ResumeId { get; set; }
         public bool IsSubmitted { get; set; }
         public bool DraftStep { get; set; } = true;
 
@@ -29,7 +29,7 @@ namespace CG.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public JobPosting JobPosting { get; set; } = null!;
         public ApplicantProfile ApplicantProfile { get; set; } = null!;
-        public Resume Resume { get; set; } = null!;
+        public Resume? Resume { get; set; }
 
         // +1 check
         // [x] ApplicationStatus is in ApplicationStatus enum
