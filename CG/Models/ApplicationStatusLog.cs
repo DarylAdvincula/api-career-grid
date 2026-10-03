@@ -4,9 +4,9 @@ namespace CG.Models
     {
         public int Id { get; set; }
         public int ApplicationId { get; set; }
-        public ApplicationStatus OldApplicationStatus { get; set; }
-        public ApplicationStatus NewApplicationStatus { get; set; }
         public int ChangedByUserId { get; set; }
+        public ApplicationStatus? OldApplicationStatus { get; set; }
+        public ApplicationStatus NewApplicationStatus { get; set; }
         public string? Notes { get; set; }
         public DateTime ChangedAt { get; set; } = DateTime.Now;
         public Application Application { get; set; } = null!;

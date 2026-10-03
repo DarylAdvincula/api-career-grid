@@ -8,13 +8,13 @@ namespace CG.Models
         public int UserAccountId { get; set; }
 
         [StringLength(150)]
-        public string Headline { get; set; } = string.Empty;
+        public string? Headline { get; set; }
         
         [StringLength(150)]
-        public string HomeLocation { get; set; } = string.Empty;
+        public string? HomeLocation { get; set; }
 
         [StringLength(1500)] // instead of nvarchar(max)
-        public string Bio { get; set; } = string.Empty;
+        public string? Bio { get; set; }
 
         public DateTime CreatedAt { get; init; } = DateTime.Now;
 
