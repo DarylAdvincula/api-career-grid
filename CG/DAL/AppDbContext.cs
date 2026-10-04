@@ -11,7 +11,7 @@ namespace CG.DAL
         public DbSet<ApplicantSkill> ApplicantSkills { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<ApplicationStatusLog> ApplicationStatusLogs { get; set; }
-        public DbSet<Company> Companys { get; set; }
+        public DbSet<Company> Companies { get; set; }
         public DbSet<EmployerProfile> EmployerProfiles { get; set; }
         public DbSet<JobClassification> JobClassifications { get; set; }
         public DbSet<JobPosting> JobPostings { get; set; }
@@ -39,7 +39,7 @@ namespace CG.DAL
                 .ToTable("UserAccounts");
 
             modelBuilder.Entity<Company>()
-                .ToTable("Companys");
+                .ToTable("Companies");
 
             modelBuilder.Entity<EmployerProfile>()
                 .ToTable("EmployerProfiles");
