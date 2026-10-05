@@ -13,6 +13,10 @@
 *.userosscache
 *.sln.docstates
 
+# Personal/Local developer settings (e.g., custom database connection strings)
+appsettings.Local.json
+appsettings.*.Local.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
