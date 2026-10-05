@@ -2,7 +2,7 @@ using CG.Models;
 
 namespace CG.Repositories.Interfaces
 {
-    public interface IJobPostSkillRepository
+    public interface IJobPostingSkillRepository
     {
         Task<JobPostingSkill?> GetByIdAsync(int id);
         Task<IEnumerable<JobPostingSkill>> GetAllAsync();

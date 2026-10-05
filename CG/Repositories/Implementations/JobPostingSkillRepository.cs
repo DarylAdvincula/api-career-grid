@@ -1,10 +1,11 @@
 using CG.DAL;
 using CG.Models;
+using CG.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CG.Repositories.Implementations
 {
-    public class JobPostingSkillRepository
+    public class JobPostingSkillRepository : IJobPostingSkillRepository
     {
         private readonly AppDbContext _context;
 
@@ -21,6 +22,11 @@ namespace CG.Repositories.Implementations
         public async Task<IEnumerable<JobPostingSkill>> GetAllAsync()
         {
             return await _context.JobPostingSkills.ToListAsync();
+        }
+
+        public async Task AddAsync(JobPostingSkill jobPostingSkill)
+        {
+            await _context.JobPostingSkills.AddAsync(jobPostingSkill);
         }
 
         public void Update(JobPostingSkill jobPostingSkill)
