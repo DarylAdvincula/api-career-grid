@@ -26,7 +26,8 @@ namespace CG.Repositories.Implementations
 
         public async Task<IEnumerable<ApplicantProfile>> GetAllAsync()
         {
-            return await _context.ApplicantProfiles.ToListAsync();
+            return await _context.ApplicantProfiles.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(ApplicantProfile applicantProfile)

@@ -5,6 +5,8 @@ namespace CG.Repositories.Interfaces
     public interface IApplicationStatusLogRepository
     {
         Task<ApplicationStatusLog?> GetByIdAsync(int id);
+        Task<ApplicationStatusLog?> GetByApplicationIdAsync(int applicationId);
+        Task<IEnumerable<ApplicationStatusLog>> GetAllByApplicantProfileIdAsync(int applicantProfileId);
         Task<IEnumerable<ApplicationStatusLog>> GetAllAsync();
         Task AddAsync(ApplicationStatusLog applicationStatusLog);
         void Update(ApplicationStatusLog applicationStatusLog);

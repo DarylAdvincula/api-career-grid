@@ -21,7 +21,8 @@ namespace CG.Repositories.Implementations
 
         public async Task<IEnumerable<WorkExperience>> GetAllAsync()
         {
-            return await _context.WorkExperiences.ToListAsync();
+            return await _context.WorkExperiences.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(WorkExperience workExperience)

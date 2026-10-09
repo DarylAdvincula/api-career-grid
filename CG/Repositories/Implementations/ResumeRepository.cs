@@ -21,7 +21,8 @@ namespace CG.Repositories.Implementations
 
         public async Task<IEnumerable<Resume>> GetAllAsync()
         {
-            return await _context.Resumes.ToListAsync();
+            return await _context.Resumes.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(Resume resume)

@@ -20,13 +20,13 @@ namespace CG.Models
         public int Id { get; set; }
         public int UserAccountId { get; set; }
         public int CompanyId { get; set; }
-        public int ApproverByMemberId { get; set; }
+        public int? ApprovedByMemberId { get; set; }
         public CompanyRole CompanyRole { get; set; } = CompanyRole.Recruiter;
         public MembershipStatus MembershipStatus { get; set; } = MembershipStatus.Pending;
         public DateTime JoinedAt { get; init; } = DateTime.Now;
         public UserAccount UserAccount { get; set; } = null!;
         public Company Company { get; set; } = null!;
-        public UserAccount ApprovedByMember { get; set; } = null!;
+        public UserAccount? ApprovedByMember { get; set; }
 
         // +2 checks
         // [x] MembershipStatus is in MembershipStatus enum

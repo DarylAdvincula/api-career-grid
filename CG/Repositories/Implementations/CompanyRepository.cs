@@ -21,7 +21,8 @@ namespace CG.Repositories.Implementations
 
         public async Task<IEnumerable<Company>> GetAllAsync()
         {
-            return await _context.Companies.ToListAsync();
+            return await _context.Companies.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(Company company)

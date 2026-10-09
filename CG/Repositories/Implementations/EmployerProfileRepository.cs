@@ -26,7 +26,8 @@ namespace CG.Repositories.Implementations
 
         public async Task<IEnumerable<EmployerProfile>> GetAllAsync()
         {
-            return await _context.EmployerProfiles.ToListAsync();
+            return await _context.EmployerProfiles.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(EmployerProfile employerProfile)
