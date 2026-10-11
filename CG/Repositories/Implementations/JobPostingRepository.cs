@@ -19,9 +19,23 @@ namespace CG.Repositories.Implementations
             return await _context.JobPostings.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<JobPosting>> GetAllAsync()
+        public async Task<IEnumerable<JobPosting>> GetAllByCompanyIdAsync(int companyId)
         {
-            return await _context.JobPostings.ToListAsync();
+            return await _context.JobPostings.Where(x => x.CompanyId == companyId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<JobPosting>> GetAllAsync(string? search)
+        {
+            var jobPostingsQuery = _context.JobPostings.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                jobPostingsQuery = jobPostingsQuery.Where(x => x.Title.Contains(search));
+
+            return await jobPostingsQuery
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(JobPosting jobPosting)

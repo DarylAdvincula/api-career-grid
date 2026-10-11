@@ -19,9 +19,15 @@ namespace CG.Repositories.Implementations
             return await _context.JobClassifications.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<JobClassification?> GetByNameAsync(string name)
+        {
+            return await _context.JobClassifications.FirstOrDefaultAsync(x => x.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+        }
+
         public async Task<IEnumerable<JobClassification>> GetAllAsync()
         {
-            return await _context.JobClassifications.ToListAsync();
+            return await _context.JobClassifications.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(JobClassification jobClassification)

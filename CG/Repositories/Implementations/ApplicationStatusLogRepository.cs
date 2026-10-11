@@ -19,9 +19,23 @@ namespace CG.Repositories.Implementations
             return await _context.ApplicationStatusLogs.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<ApplicationStatusLog?> GetByApplicationIdAsync(int applicationId)
+        {
+            return await _context.ApplicationStatusLogs.FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
+        }
+
+        public async Task<IEnumerable<ApplicationStatusLog>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
+        {
+            return await _context.ApplicationStatusLogs.Include(x => x.Application)
+                .Where(x => x.Application.ApplicantProfileId == applicantProfileId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<ApplicationStatusLog>> GetAllAsync()
         {
-            return await _context.ApplicationStatusLogs.ToListAsync();
+            return await _context.ApplicationStatusLogs.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(ApplicationStatusLog applicationStatusLog)
