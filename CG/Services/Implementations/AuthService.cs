@@ -1,4 +1,3 @@
-using CG.DAL;
 using CG.DTO.Auth;
 using CG.DTO.UserAccount;
 using CG.Exceptions;

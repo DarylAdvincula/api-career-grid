@@ -241,7 +241,7 @@ namespace CG.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApproverByMemberId")
+                    b.Property<int?>("ApprovedByMemberId")
                         .HasColumnType("int");
 
                     b.Property<int>("CompanyId")
@@ -262,7 +262,7 @@ namespace CG.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApproverByMemberId");
+                    b.HasIndex("ApprovedByMemberId");
 
                     b.HasIndex("CompanyId");
 
@@ -463,8 +463,8 @@ namespace CG.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("FileSizeInBytes")
-                        .HasColumnType("int");
+                    b.Property<long>("FileSizeInBytes")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
@@ -723,9 +723,8 @@ namespace CG.Migrations
                 {
                     b.HasOne("CG.Models.UserAccount", "ApprovedByMember")
                         .WithMany()
-                        .HasForeignKey("ApproverByMemberId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .HasForeignKey("ApprovedByMemberId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("CG.Models.Company", "Company")
                         .WithMany()

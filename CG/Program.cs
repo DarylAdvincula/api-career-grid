@@ -32,7 +32,21 @@ builder.Services.AddScoped<IWorkExperienceRepository, WorkExperienceRepository>(
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddSingleton<IPasswordService, PasswordService>();
+
+builder.Services.AddScoped<IApplicantProfileService, ApplicantProfileService>();
+builder.Services.AddScoped<IApplicantSkillService, ApplicantSkillService>();
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
+builder.Services.AddScoped<IApplicationStatusLogService, ApplicationStatusLogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
+builder.Services.AddScoped<IJobClassificationService, JobClassificationService>();
+builder.Services.AddScoped<IJobPostingService, JobPostingService>();
+builder.Services.AddScoped<IJobPostingSkillService, JobPostingSkillService>();
+builder.Services.AddScoped<IJobSubClassificationService, JobSubClassificationService>();
+builder.Services.AddScoped<IResumeService, ResumeService>();
+builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<IWorkExperienceService, WorkExperienceService>();
 
 builder.Services.AddProblemDetails();
 

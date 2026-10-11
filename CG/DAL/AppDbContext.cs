@@ -152,7 +152,7 @@ namespace CG.DAL
             modelBuilder.Entity<EmployerProfile>()
                 .HasOne(e => e.ApprovedByMember)
                 .WithMany()
-                .HasForeignKey(e => e.ApproverByMemberId)
+                .HasForeignKey(e => e.ApprovedByMemberId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<EmployerProfile>()

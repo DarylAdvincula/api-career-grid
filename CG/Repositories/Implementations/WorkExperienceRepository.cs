@@ -19,6 +19,13 @@ namespace CG.Repositories.Implementations
             return await _context.WorkExperiences.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<IEnumerable<WorkExperience>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
+        {
+            return await _context.WorkExperiences.Where(x => x.ApplicantProfileId == applicantProfileId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<WorkExperience>> GetAllAsync()
         {
             return await _context.WorkExperiences.AsNoTracking()

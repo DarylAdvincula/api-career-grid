@@ -22,7 +22,7 @@ namespace CG.Models
         [StringLength(100)]
         public string ContentType { get; set; } = string.Empty;
 
-        public int FileSizeInBytes { get; set; }
+        public long FileSizeInBytes { get; set; }
         public bool IsPrimary { get; set; } // resume version that's flagged as primary
         public DateTime UploadedAt { get; init; } = DateTime.Now;
         public ApplicantProfile ApplicantProfile { get; set; } = null!;
