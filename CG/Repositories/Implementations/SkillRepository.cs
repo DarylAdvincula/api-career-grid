@@ -19,9 +19,15 @@ namespace CG.Repositories.Implementations
             return await _context.Skills.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<Skill?> GetByNameAsync(string name)
+        {
+            return await _context.Skills.FirstOrDefaultAsync(x => x.Name == name);
+        }
+
         public async Task<IEnumerable<Skill>> GetAllAsync()
         {
-            return await _context.Skills.ToListAsync();
+            return await _context.Skills.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(Skill skill)

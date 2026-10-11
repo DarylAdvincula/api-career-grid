@@ -21,7 +21,8 @@ namespace CG.Repositories.Implementations
 
         public async Task<IEnumerable<JobSubClassification>> GetAllAsync()
         {
-            return await _context.JobSubClassifications.ToListAsync();
+            return await _context.JobSubClassifications.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(JobSubClassification jobSubClassification)

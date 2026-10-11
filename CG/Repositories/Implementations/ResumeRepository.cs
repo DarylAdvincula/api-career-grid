@@ -19,9 +19,24 @@ namespace CG.Repositories.Implementations
             return await _context.Resumes.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<Resume?> GetPrimaryByApplicantProfileId(int applicantProfileId)
+        {
+            return await _context.Resumes.Where(x => x.ApplicantProfileId == applicantProfileId)
+                .OrderByDescending(x => x.IsPrimary) 
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Resume>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
+        {
+            return await _context.Resumes.Where(x => x.ApplicantProfileId == applicantProfileId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Resume>> GetAllAsync()
         {
-            return await _context.Resumes.ToListAsync();
+            return await _context.Resumes.AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task AddAsync(Resume resume)

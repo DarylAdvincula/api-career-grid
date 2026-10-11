@@ -5,6 +5,7 @@ namespace CG.Repositories.Interfaces
     public interface IWorkExperienceRepository
     {
         Task<WorkExperience?> GetByIdAsync(int id);
+        Task<IEnumerable<WorkExperience>> GetAllByApplicantProfileIdAsync(int applicantProfileId);
         Task<IEnumerable<WorkExperience>> GetAllAsync();
         Task AddAsync(WorkExperience workExperience);
         void Update(WorkExperience workExperience);
