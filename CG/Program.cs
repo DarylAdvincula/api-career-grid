@@ -30,6 +30,7 @@ builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
 builder.Services.AddScoped<IWorkExperienceRepository, WorkExperienceRepository>();
+builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
