@@ -1,19 +1,20 @@
-- [ ] User Sessions
+- [/] User Sessions
     - [/] User Session Table
         - [/] Model
         - [/] Migration
     - [/] IRepository
     - [/] Repository
         - [/] Program.cs Registration
-    - [ ] IService
-    - [ ] Service
-        - [ ] Program.cs Registration
+    - [/] IService
+    - [/] Service
+        - [/] Program.cs Registration
 
-- [ ] Authentication
+- [/] Authentication
     - [ ] User Registration
         - [ ] Email Verification
-    - [ ] User Login
-    - [ ] Log out
+        - [/] As Applicant
+    - [/] User Login
+    - [/] Log out
 
 - [ ] Recovery
     - [ ] Reset Password
@@ -34,3 +35,4 @@
     - [ ] Company Logo
     - [ ] Applicant Profile Picture
 
+- [ ] Logging

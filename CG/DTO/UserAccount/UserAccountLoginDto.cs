@@ -1,9 +1,8 @@
-namespace CG.DTO.Auth
+namespace CG.DTO.UserAccount
 {
-    public class LoginDto
+    public class UserAccountLoginDto
     {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public bool IsPersistent { get; set; } // remember me
     }
 }

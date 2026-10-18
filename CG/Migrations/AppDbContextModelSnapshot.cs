@@ -591,7 +591,7 @@ namespace CG.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreateAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ExpiresAt")
@@ -600,8 +600,8 @@ namespace CG.Migrations
                     b.Property<string>("IpAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserAccountId")
                         .HasColumnType("int");

@@ -6,9 +6,9 @@ namespace CG.Models
         public int UserAccountId { get; set; }
         public string? IpAddress { get; set; }
         public string? UserAgent { get; set; }
-        public bool IsRevoked { get; set; }
+        public DateTime? RevokedAt { get; set; }
         public DateTime ExpiresAt { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; init; } = DateTime.Now;
         public UserAccount UserAccount { get; set; } = null!;
     }
 }

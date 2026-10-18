@@ -31,12 +31,17 @@ namespace CG.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserSession>> GetAllOtherActiveByUserAccountIdAsync(int userAccountId, bool tracked)
+        public async Task<IEnumerable<UserSession>> GetAllOtherActiveByUserAccountIdAsync(
+            Guid id, 
+            int userAccountId, 
+            bool tracked
+        )
         {
             var now = DateTime.Now;
             var userSessionsQuery = _context.UserSessions.AsQueryable()
                 .Where(x =>
                 (
+                    x.Id != id &&
                     x.UserAccountId == userAccountId &&
                     x.ExpiresAt > now
                 ));
@@ -48,10 +53,10 @@ namespace CG.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserSession>> GetAllRevokedByUserAccountIdAsync(int userAccountId, bool tracked)
+        public async Task<IEnumerable<UserSession>> GetAllRevokedAsync(bool tracked)
         {
             var userSessionsQuery = _context.UserSessions.AsQueryable()
-                .Where(x => x.UserAccountId == userAccountId);
+                .Where(x => x.RevokedAt != null);
 
             if (tracked)
                 return await userSessionsQuery.ToListAsync();
@@ -60,15 +65,11 @@ namespace CG.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserSession>> GetAllExpiredByUserAccountIdAsync(int userAccountId, bool tracked)
+        public async Task<IEnumerable<UserSession>> GetAllExpiredAsync(bool tracked)
         {
             var now = DateTime.Now;
             var userSessionsQuery = _context.UserSessions.AsQueryable()
-                .Where(x =>
-                (
-                    x.UserAccountId == userAccountId &&
-                    x.ExpiresAt <= now
-                ));
+                .Where(x => x.ExpiresAt <= now);
 
             if (tracked)
                 return await userSessionsQuery.ToListAsync();
