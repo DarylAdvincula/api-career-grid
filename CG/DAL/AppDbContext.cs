@@ -21,6 +21,7 @@ namespace CG.DAL
         public DbSet<Skill> Skills { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<WorkExperience> WorkExperiences { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -67,6 +68,9 @@ namespace CG.DAL
 
             modelBuilder.Entity<ApplicationStatusLog>()
                 .ToTable("ApplicationStatusLogs");
+
+            modelBuilder.Entity<UserSession>()
+                .ToTable("UserSessions");
 
 
             modelBuilder.Entity<JobSubClassification>()

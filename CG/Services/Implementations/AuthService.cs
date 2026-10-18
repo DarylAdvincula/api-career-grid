@@ -1,36 +1,93 @@
-using CG.DTO.Auth;
+using System.Security.Claims;
+using CG.DAL;
 using CG.DTO.UserAccount;
+using CG.DTO.UserSession;
 using CG.Exceptions;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CG.Services.Implementations
 {
-    public class AuthService : IAuthService
+    public class AuthService : BaseService, IAuthService
     {
+        private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly IPasswordService _passwordService;
+        private readonly IUserSessionService _userSessionService;
 
         public AuthService(
+            AppDbContext context,
+            IHttpContextAccessor httpContextAccessor,
             IUserAccountRepository userAccountRepository,
-            IPasswordService passwordService
+            IPasswordService passwordService,
+            IUserSessionService userSessionService
+        ) : base(
+            httpContextAccessor, 
+            userAccountRepository
         )
         {
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
             _userAccountRepository = userAccountRepository;
             _passwordService = passwordService;
+            _userSessionService = userSessionService;
+        }
+
+        private async Task Authenticate(
+            int userAccountId,
+            string email,
+            Role role,
+            Guid userSessionId
+        )
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, userAccountId.ToString()),
+                new(ClaimTypes.Email, email),
+                new(ClaimTypes.Role, role.ToString()),
+                new("session_id", userSessionId.ToString())
+            };
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            var httpContext = _httpContextAccessor?.HttpContext;
+
+            if (httpContext is null)
+                throw new InvalidOperationException("No active HTTP context.");
+            
+            await  httpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity)
+            );
         }
 
         private static UserAccountDto ToDto(UserAccount userAccount)
         {
             return new UserAccountDto
             {
+                Id = userAccount.Id,
+                Email = userAccount.Email,
                 FirstName = userAccount.FirstName,
                 LastName = userAccount.LastName,
-                Email = userAccount.Email,
+                Role = userAccount.Role,
+                IsVerified = userAccount.IsVerified,
+                CreatedAt = userAccount.CreatedAt,
+                UpdatedAt = userAccount.UpdatedAt
             };
+        }
+
+        public async Task<UserAccountDto> MeAsync()
+        {
+            var currentUserAccount = await GetCurrentUser();
+            return ToDto(currentUserAccount);
         }
         
         public async Task<UserAccountDto> RegisterAsApplicantAsync(UserAccountCreateDto request)
@@ -61,14 +118,53 @@ namespace CG.Services.Implementations
             }
         }
 
-        public async Task LoginAsync(LoginDto request)
+        public async Task LoginAsync(UserAccountLoginDto request)
         {
+            var user = await _userAccountRepository.GetByEmailAsync(request.Email);
+
+            if (user is null)
+                throw new UnauthorizedException("Invalid email or password.");
             
+            // Bypass for now
+            // if (!user.IsVerified)
+            //     throw new ForbiddenException("Please verify your email first.");
+            
+            var passwordVerificationResult = _passwordService.Verify(user, request.Password);
+            
+            if (passwordVerificationResult == PasswordVerifyResult.Failed)
+                throw new UnauthorizedException("Invalid email or password");
+            
+            if (passwordVerificationResult == PasswordVerifyResult.SuccessRehashNeeded)
+            {
+                user.PasswordHash = _passwordService.Hash(user, request.Password);
+                
+                _userAccountRepository.Update(user);
+                await _userAccountRepository.SaveChangesAsync();
+            }
+
+            var newUserSession = await _userSessionService.CreateAsync(new UserSessionCreateDto { UserAccountId = user.Id });
+            
+            await Authenticate(
+                user.Id,
+                user.Email,
+                user.Role,
+                newUserSession.Id
+            );
         }
 
         public async Task LogoutAsync()
         {
+            var httpContext = _httpContextAccessor.HttpContext;
+
+            if (httpContext is null)
+                throw new InvalidOperationException("No active HTTP context.");
+
+            var user = httpContext.User;
+
+            if (Guid.TryParse(user.FindFirstValue("session_id"), out var sessionId))
+                await _userSessionService.RevokeAsync(sessionId);
             
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
     }
 }

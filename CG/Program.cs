@@ -5,6 +5,7 @@ using CG.Repositories.Implementations;
 using CG.Repositories.Interfaces;
 using CG.Services.Implementations;
 using CG.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,11 +31,13 @@ builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
 builder.Services.AddScoped<IWorkExperienceRepository, WorkExperienceRepository>();
+builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddSingleton<IPasswordService, PasswordService>();
 
+builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IApplicantProfileService, ApplicantProfileService>();
 builder.Services.AddScoped<IApplicantSkillService, ApplicantSkillService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
@@ -49,8 +52,34 @@ builder.Services.AddScoped<IJobSubClassificationService, JobSubClassificationSer
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IWorkExperienceService, WorkExperienceService>();
+builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
 builder.Services.AddProblemDetails();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "cg_auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromHours(builder.Configuration.GetValue<int>("AppSettings:SessionValidityDurationHours"));
+
+        options.Events.OnRedirectToLogin = ctx =>
+        {
+            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+
+        options.Events.OnRedirectToAccessDenied = ctx =>
+        {
+            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -74,6 +103,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
