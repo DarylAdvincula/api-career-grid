@@ -8,11 +8,11 @@ namespace CG.Services.Interfaces
     {
         Task<AccountProfileDto> MeAsync();
         
-        Task<UserAccountDto> Register(UserAccountCreateDto request);
+        Task<UserAccountDto> RegisterAsApplicant(UserAccountCreateDto request);
 
-        Task<UserAccountDto> CreateCompany(CompanyCreateDto request);
+        Task<UserAccountDto> RegisterAsOwner(CompanyCreateDto request);
 
-        Task<UserAccountDto> JoinCompany(CompanyJoinDto request);
+        Task<UserAccountDto> RegisterAsStaff(CompanyJoinDto request);
 
         Task LoginAsync(UserAccountLoginDto request);
         
