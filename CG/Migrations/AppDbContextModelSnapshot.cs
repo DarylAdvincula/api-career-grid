@@ -17,7 +17,7 @@ namespace CG.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.31")
+                .HasAnnotation("ProductVersion", "8.0.33")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -82,7 +82,7 @@ namespace CG.Migrations
                     b.HasIndex("ApplicantProfileId", "SkillId")
                         .IsUnique();
 
-                    b.ToTable("ApplicantSkill", null, t =>
+                    b.ToTable("ApplicantSkills", null, t =>
                         {
                             t.HasCheckConstraint("CK_ApplicantSkills_Proficiency", "ProficiencyLevel IS NULL OR ProficiencyLevel IN ('Beginner', 'Intermediate', 'Advanced', 'Expert')");
                         });
@@ -190,11 +190,6 @@ namespace CG.Migrations
 
                     b.Property<int?>("ApprovedByAdminId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -374,7 +369,7 @@ namespace CG.Migrations
 
                     b.HasIndex("JobSubClassificationId");
 
-                    b.ToTable("JobPosting", null, t =>
+                    b.ToTable("JobPostings", null, t =>
                         {
                             t.HasCheckConstraint("CK_JobPostings_ApprovalStatus", "ApprovalStatus IN ('Draft', 'Pending', 'Published', 'Rejected')");
 
@@ -434,7 +429,7 @@ namespace CG.Migrations
                     b.HasIndex("JobClassificationId", "Name")
                         .IsUnique();
 
-                    b.ToTable("JobSubClassification", (string)null);
+                    b.ToTable("JobSubClassifications", (string)null);
                 });
 
             modelBuilder.Entity("CG.Models.Resume", b =>
@@ -577,7 +572,7 @@ namespace CG.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("UserAccount", null, t =>
+                    b.ToTable("UserAccounts", null, t =>
                         {
                             t.HasCheckConstraint("CK_UserAccounts_EmailFormat", "Email LIKE '%_@__%.__%'");
 
@@ -660,7 +655,7 @@ namespace CG.Migrations
 
                     b.HasIndex("ApplicantProfileId");
 
-                    b.ToTable("WorkExperience", null, t =>
+                    b.ToTable("WorkExperiences", null, t =>
                         {
                             t.HasCheckConstraint("CK_WorkExperiences_CurrentRole", "(IsCurrentRole = 1 AND EndDate IS NULL) OR (IsCurrentRole = 0)");
                         });

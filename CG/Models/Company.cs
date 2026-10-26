@@ -28,9 +28,6 @@ namespace CG.Models
         [StringLength(2083)]
         public string LogoUrl { get; set; } = string.Empty;
 
-        [StringLength(10)]
-        public string Code { get; set; } = string.Empty;
-
         public VerificationStatus VerificationStatus { get; set; } = VerificationStatus.Pending;
         public DateTime? ApprovedAt { get; set; }
         public DateTime CreatedAt { get; init; } = DateTime.Now;

@@ -44,12 +44,12 @@ namespace CG.Services.Implementations
             return ToDto(profile);
         }
 
-        public async Task<ApplicantProfileDto> GetByUserAccountIdAsync(int userAccountId)
+        public async Task<ApplicantProfileDto?> GetByUserAccountIdAsync(int userAccountId)
         {
             var profile = await _applicantProfileRepository.GetByUserAccountIdAsync(userAccountId);
 
             if (profile is null)
-                throw new NotFoundException($"Applicant profile with user account id '{userAccountId}' does not exists.");
+                return null;
 
             return ToDto(profile);
         }
