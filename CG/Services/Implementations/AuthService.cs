@@ -134,7 +134,7 @@ namespace CG.Services.Implementations
             }
         }
         
-        public async Task<UserAccountDto> Register(UserAccountCreateDto request)
+        public async Task<UserAccountDto> RegisterAsApplicant(UserAccountCreateDto request)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace CG.Services.Implementations
             }
         }
         
-        public async Task<UserAccountDto> CreateCompany(CompanyCreateDto request)
+        public async Task<UserAccountDto> RegisterAsOwner(CompanyCreateDto request)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             
@@ -216,7 +216,7 @@ namespace CG.Services.Implementations
             }
         }
         
-        public async Task<UserAccountDto> JoinCompany(CompanyJoinDto request)
+        public async Task<UserAccountDto> RegisterAsStaff(CompanyJoinDto request)
         {
             if (request.CompanyRole == CompanyRole.Owner)
                 throw new BadRequestException("You cannot request to join into a company as an owner.");
