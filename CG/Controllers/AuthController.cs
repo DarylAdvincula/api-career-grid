@@ -1,3 +1,4 @@
+using CG.DTO.Company;
 using CG.DTO.UserAccount;
 using CG.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -23,12 +24,30 @@ namespace CG.Controllers
             return Ok(await _authService.MeAsync());
         }
 
-        [HttpPost("register-as-applicant")]
-        public async Task<IActionResult> RegisterAsApplicant([FromBody] UserAccountCreateDto request)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserAccountCreateDto request)
         {
             return StatusCode(
                 StatusCodes.Status201Created,
-                await _authService.RegisterAsApplicantAsync(request)
+                await _authService.Register(request)
+            );
+        }
+
+        [HttpPost("create-company")]
+        public async Task<IActionResult> CreateCompany([FromBody] CompanyCreateDto request)
+        {
+            return StatusCode(
+                StatusCodes.Status201Created,
+                await _authService.CreateCompany(request)
+            );
+        }
+
+        [HttpPost("join-company")]
+        public async Task<IActionResult> JoinCompany([FromBody] CompanyJoinDto request)
+        {
+            return StatusCode(
+                StatusCodes.Status201Created,
+                await _authService.JoinCompany(request)
             );
         }
 
@@ -39,6 +58,7 @@ namespace CG.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

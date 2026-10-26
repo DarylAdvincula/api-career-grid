@@ -6,7 +6,6 @@ namespace CG.DAL
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions options) : base(options) {}
-
         public DbSet<ApplicantProfile> ApplicantProfiles { get; set; }
         public DbSet<ApplicantSkill> ApplicantSkills { get; set; }
         public DbSet<Application> Applications { get; set; }
@@ -31,7 +30,7 @@ namespace CG.DAL
                 .ToTable("JobClassifications");
 
             modelBuilder.Entity<JobSubClassification>()
-                .ToTable("JobSubClassification");
+                .ToTable("JobSubClassifications");
 
             modelBuilder.Entity<Skill>()
                 .ToTable("Skills");
@@ -105,7 +104,7 @@ namespace CG.DAL
                 .HasConversion<string>();
             
             modelBuilder.Entity<UserAccount>()
-                .ToTable("UserAccount", e =>
+                .ToTable("UserAccounts", e =>
                 {
                     e.HasCheckConstraint(
                         "CK_UserAccounts_Role",
@@ -163,7 +162,7 @@ namespace CG.DAL
                 .HasIndex(e => e.CompanyId);
             
             modelBuilder.Entity<WorkExperience>()
-                .ToTable("WorkExperience", e =>
+                .ToTable("WorkExperiences", e =>
                 {
                     e.HasCheckConstraint(
                         "CK_WorkExperiences_CurrentRole",
@@ -188,7 +187,7 @@ namespace CG.DAL
                 .HasConversion<string>();
 
             modelBuilder.Entity<ApplicantSkill>()
-                .ToTable("ApplicantSkill", e =>
+                .ToTable("ApplicantSkills", e =>
                 {
                     e.HasCheckConstraint(
                         "CK_ApplicantSkills_Proficiency",
@@ -220,7 +219,7 @@ namespace CG.DAL
                 .HasConversion<string>();
             
             modelBuilder.Entity<JobPosting>()
-                .ToTable("JobPosting", e =>
+                .ToTable("JobPostings", e =>
                 {
                     e.HasCheckConstraint(
                         "CK_JobPostings_ApprovalStatus",

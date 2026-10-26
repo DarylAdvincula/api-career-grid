@@ -6,7 +6,7 @@ namespace CG.Services.Interfaces
     {
         Task<ApplicantProfileDto> GetByIdAsync(int id);
 
-        Task<ApplicantProfileDto> GetByUserAccountIdAsync(int userAccountId);
+        Task<ApplicantProfileDto?> GetByUserAccountIdAsync(int userAccountId);
         
         Task<ApplicantProfileDto> CreateAsync(ApplicantProfileCreateDto request);
 
