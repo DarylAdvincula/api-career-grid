@@ -24,30 +24,30 @@ namespace CG.Controllers
             return Ok(await _authService.MeAsync());
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserAccountCreateDto request)
+        [HttpPost("register/applicant")]
+        public async Task<IActionResult> RegisterAsApplicant([FromBody] UserAccountCreateDto request)
         {
             return StatusCode(
                 StatusCodes.Status201Created,
-                await _authService.Register(request)
+                await _authService.RegisterAsApplicant(request)
             );
         }
 
-        [HttpPost("create-company")]
-        public async Task<IActionResult> CreateCompany([FromBody] CompanyCreateDto request)
+        [HttpPost("register/owner")]
+        public async Task<IActionResult> RegisterAsOwner([FromBody] CompanyCreateDto request)
         {
             return StatusCode(
                 StatusCodes.Status201Created,
-                await _authService.CreateCompany(request)
+                await _authService.RegisterAsOwner(request)
             );
         }
 
-        [HttpPost("join-company")]
-        public async Task<IActionResult> JoinCompany([FromBody] CompanyJoinDto request)
+        [HttpPost("register/staff")]
+        public async Task<IActionResult> RegisterAsStaff([FromBody] CompanyJoinDto request)
         {
             return StatusCode(
                 StatusCodes.Status201Created,
-                await _authService.JoinCompany(request)
+                await _authService.RegisterAsStaff(request)
             );
         }
 
