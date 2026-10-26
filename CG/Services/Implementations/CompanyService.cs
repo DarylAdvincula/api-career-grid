@@ -25,7 +25,6 @@ namespace CG.Services.Implementations
                 Description = company.Description,
                 WebsiteUrl = company.WebsiteUrl,
                 LogoUrl = company.LogoUrl,
-                Code = company.Code,
                 VerificationStatus = company.VerificationStatus,
                 ApprovedAt = company.ApprovedAt,
                 CreatedAt = company.CreatedAt,
@@ -56,7 +55,6 @@ namespace CG.Services.Implementations
                 Description = request.Description,
                 WebsiteUrl = request.WebsiteUrl,
                 LogoUrl = request.LogoUrl,
-                Code = request.Code,
                 VerificationStatus = VerificationStatus.Pending,
             };
 
@@ -76,7 +74,6 @@ namespace CG.Services.Implementations
             company.Description = request.Description;
             company.WebsiteUrl = request.WebsiteUrl;
             company.LogoUrl = request.LogoUrl;
-            company.Code = request.Code;
             company.VerificationStatus = request.VerificationStatus;
 
             _companyRepository.Update(company);

@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using CG.DAL;
+using CG.DAL.Implementations;
+using CG.DAL.Interfaces;
 using CG.Exceptions;
 using CG.Repositories.Implementations;
 using CG.Repositories.Interfaces;
@@ -7,6 +9,8 @@ using CG.Services.Implementations;
 using CG.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+
+DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +57,8 @@ builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IWorkExperienceService, WorkExperienceService>();
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
+
+builder.Services.AddTransient<IDbSeeder, DbSeeder>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
@@ -106,5 +112,11 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    await scope.ServiceProvider.GetRequiredService<IDbSeeder>()
+        .SeedAsync();
+}
 
 app.Run();

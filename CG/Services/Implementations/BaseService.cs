@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using CG.DTO.UserAccount;
 using CG.Exceptions;
 using CG.Models;
 using CG.Repositories.Interfaces;
