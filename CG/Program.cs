@@ -3,22 +3,29 @@ using CG.DAL;
 using CG.DAL.Implementations;
 using CG.DAL.Interfaces;
 using CG.Exceptions;
+using CG.Helpers.Implementations;
+using CG.Helpers.Interfaces;
 using CG.Repositories.Implementations;
 using CG.Repositories.Interfaces;
 using CG.Services.Implementations;
 using CG.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Resend;
 
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+builder.Services.AddSingleton<IPasswordService, PasswordService>();
+builder.Services.AddSingleton<ISystemConfiguration, SystemConfiguration>();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    var systemConfig = serviceProvider
+        .GetRequiredService<ISystemConfiguration>();
+
+    options.UseSqlServer(systemConfig.DatabaseConnectionString);
 });
 
 builder.Services.AddScoped<IApplicantProfileRepository, ApplicantProfileRepository>();
@@ -39,8 +46,6 @@ builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddSingleton<IPasswordService, PasswordService>();
-
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IApplicantProfileService, ApplicantProfileService>();
 builder.Services.AddScoped<IApplicantSkillService, ApplicantSkillService>();
@@ -58,26 +63,45 @@ builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IWorkExperienceService, WorkExperienceService>();
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+
+builder.Services.Configure<ResendClientOptions>(options =>
+{
+    var resendApiKey = builder.Configuration.GetValue<string>("Resend:ApiKey");
+
+    if (string.IsNullOrWhiteSpace(resendApiKey))
+        throw new InvalidOperationException("[Resend] 'Resend:ApiKey' is not configured.");
+
+    options.ApiToken = resendApiKey;
+});
+
+builder.Services.AddTransient<IResend, ResendClient>();
+builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 builder.Services.AddTransient<IDbSeeder, DbSeeder>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie();
+builder.Services
+    .AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+    .Configure<ISystemConfiguration>((options, systemConfig) =>
     {
         options.Cookie.Name = "cg_auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.ExpireTimeSpan = TimeSpan.FromHours(builder.Configuration.GetValue<int>("AppSettings:SessionValidityDurationHours"));
-
+        options.ExpireTimeSpan = TimeSpan.FromHours(systemConfig.LifeSpanSession);
         options.Events.OnRedirectToLogin = ctx =>
         {
             ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
             return Task.CompletedTask;
         };
-
         options.Events.OnRedirectToAccessDenied = ctx =>
         {
             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
@@ -117,6 +141,12 @@ using (var scope = app.Services.CreateScope())
 {
     await scope.ServiceProvider.GetRequiredService<IDbSeeder>()
         .SeedAsync();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<ISystemConfiguration>()
+        .CheckCompleteness();
 }
 
 app.Run();

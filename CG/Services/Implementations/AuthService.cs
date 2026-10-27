@@ -5,6 +5,7 @@ using CG.DTO.Company;
 using CG.DTO.UserAccount;
 using CG.DTO.UserSession;
 using CG.Exceptions;
+using CG.Helpers.Interfaces;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
@@ -21,10 +22,12 @@ namespace CG.Services.Implementations
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly ICompanyRepository _companyRepository;
+        private readonly ISystemConfiguration _systemConfiguration;
         private readonly ICompanyService _companyService;
         private readonly IEmployerProfileRepository _employerProfileRepository;
         private readonly IEmployerProfileService _employerProfileService;
         private readonly IApplicantProfileService _applicantProfileService;
+        private readonly IEmailService _emailService;
         private readonly IPasswordService _passwordService;
         private readonly IUserSessionService _userSessionService;
 
@@ -33,10 +36,12 @@ namespace CG.Services.Implementations
             IHttpContextAccessor httpContextAccessor,
             IUserAccountRepository userAccountRepository,
             ICompanyRepository companyRepository,
+            ISystemConfiguration systemConfiguration,
             ICompanyService companyService,
             IEmployerProfileRepository employerProfileRepository,
             IEmployerProfileService employerProfileService,
             IApplicantProfileService applicantProfileService,
+            IEmailService emailService,
             IPasswordService passwordService,
             IUserSessionService userSessionService
         ) : base(
@@ -48,10 +53,12 @@ namespace CG.Services.Implementations
             _httpContextAccessor = httpContextAccessor;
             _userAccountRepository = userAccountRepository;
             _companyRepository = companyRepository;
+            _systemConfiguration = systemConfiguration;
             _companyService = companyService;
             _employerProfileRepository = employerProfileRepository;
             _employerProfileService = employerProfileService;
             _applicantProfileService = applicantProfileService;
+            _emailService = emailService;
             _passwordService = passwordService;
             _userSessionService = userSessionService;
         }
@@ -84,6 +91,19 @@ namespace CG.Services.Implementations
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity)
             );
+        }
+
+        private UserAccount ToModel(UserAccountCreateDto userAccountCreateDto, Role role)
+        {
+            return new UserAccount
+            {
+                FirstName = userAccountCreateDto.FirstName,
+                LastName = userAccountCreateDto.LastName,
+                Email = userAccountCreateDto.Email,
+                Role = role,
+                VerificationExpiry = DateTime.Now.AddMinutes(_systemConfiguration.LifeSpanEmailVerificationCode),
+                VerificationCode = Guid.NewGuid().ToString(),
+            };
         }
 
         private static UserAccountDto ToDto(UserAccount userAccount)
@@ -138,18 +158,12 @@ namespace CG.Services.Implementations
         {
             try
             {
-                var newUserAccount = new UserAccount
-                {
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Email = request.Email,
-                    Role = Role.Applicant
-                };
-
+                var newUserAccount = ToModel(request, Role.Applicant);
                 newUserAccount.PasswordHash = _passwordService.Hash(newUserAccount, request.Password);
 
                 await _userAccountRepository.AddAsync(newUserAccount);
                 await _userAccountRepository.SaveChangesAsync();
+                await _emailService.SendEmailVerificationAsync(newUserAccount);
                 return ToDto(newUserAccount);
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 } sql)
@@ -165,17 +179,10 @@ namespace CG.Services.Implementations
         public async Task<UserAccountDto> RegisterAsOwner(CompanyCreateDto request)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
+            var newUserAccount = ToModel(request, Role.Employer);
             
             try
             {
-                var newUserAccount = new UserAccount
-                {
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Email = request.Email,
-                    Role = Role.Employer
-                };
-
                 newUserAccount.PasswordHash = _passwordService.Hash(newUserAccount, request.Password);
 
                 await _userAccountRepository.AddAsync(newUserAccount);
@@ -202,7 +209,6 @@ namespace CG.Services.Implementations
                 await _employerProfileRepository.AddAsync(newUserProfile);
                 await _employerProfileRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return ToDto(newUserAccount);
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 } sql)
             {
@@ -214,6 +220,9 @@ namespace CG.Services.Implementations
                 await transaction.RollbackAsync();
                 throw;
             }
+
+            await _emailService.SendEmailVerificationAsync(newUserAccount);
+            return ToDto(newUserAccount);
         }
         
         public async Task<UserAccountDto> RegisterAsStaff(CompanyJoinDto request)
@@ -225,14 +234,7 @@ namespace CG.Services.Implementations
             
             try
             {
-                var newUserAccount = new UserAccount
-                {
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Email = request.Email,
-                    Role = Role.Employer
-                };
-
+                var newUserAccount = ToModel(request, Role.Employer);
                 newUserAccount.PasswordHash = _passwordService.Hash(newUserAccount, request.Password);
 
                 await _userAccountRepository.AddAsync(newUserAccount);
@@ -248,6 +250,7 @@ namespace CG.Services.Implementations
                 await _employerProfileRepository.AddAsync(newUserProfile);
                 await _employerProfileRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
+                await _emailService.SendEmailVerificationAsync(newUserAccount);
                 return ToDto(newUserAccount);
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 } sql)
@@ -269,9 +272,8 @@ namespace CG.Services.Implementations
             if (user is null)
                 throw new UnauthorizedException("Invalid email or password.");
             
-            // Bypass for now
-            // if (!user.IsVerified)
-            //     throw new ForbiddenException("Please verify your email first.");
+            if (!user.IsVerified)
+                throw new ForbiddenException("Please verify your email first.");
             
             var passwordVerificationResult = _passwordService.Verify(user, request.Password);
             
@@ -309,6 +311,35 @@ namespace CG.Services.Implementations
                 await _userSessionService.RevokeAsync(sessionId);
             
             await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+
+        public async Task VerifyEmailAsync(string verificationCode)
+        {
+            var userAccount = await _userAccountRepository.GetByVerificationCodeAsync(verificationCode);
+
+            if (userAccount is null)
+                throw new BadRequestException("Invalid verification code.");
+            
+            // mail a new email verification if the existing code was already expired
+            if (DateTime.Now >= userAccount.VerificationExpiry)
+            {
+                userAccount.VerificationCode = Guid.NewGuid().ToString();
+                userAccount.VerificationExpiry = DateTime.Now.AddMinutes(_systemConfiguration.LifeSpanEmailVerificationCode);
+
+                _userAccountRepository.Update(userAccount);
+                await _userAccountRepository.SaveChangesAsync();
+                await _emailService.SendEmailVerificationAsync(userAccount);
+            }
+            else
+            {
+                userAccount.IsVerified = true;
+                userAccount.VerificationCode = null;
+                userAccount.VerificationExpiry = null;
+
+                _userAccountRepository.Update(userAccount);
+                await _userAccountRepository.SaveChangesAsync();
+                await _emailService.SendEmailVerifiedAsync(userAccount);
+            }
         }
     }
 }

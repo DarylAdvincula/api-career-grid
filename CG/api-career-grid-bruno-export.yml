@@ -17,6 +17,8 @@ config:
       variables:
         - name: base_url
           value: http://localhost:5094/api
+        - name: base_email
+          value: kyledaryladvincula2004
 items:
   - info:
       name: auth
@@ -53,143 +55,6 @@ items:
           followRedirects: true
           maxRedirects: 5
           forwardAuthorizationHeader: false
-      - info:
-          name: sign-up
-          type: folder
-          seq: 3
-        request:
-          auth: inherit
-        items:
-          - info:
-              name: as-company-hiring-manager
-              type: http
-              seq: 4
-            http:
-              method: POST
-              url: '{{base_url}}/auth/join-company'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Eduard",
-                    "lastName": "Gomez",
-                    "email": "eduard@email.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "companyId": 1,
-                    "companyRole": "HiringManager"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-recruiter
-              type: http
-              seq: 3
-            http:
-              method: POST
-              url: '{{base_url}}/auth/join-company'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Jericho",
-                    "lastName": "De Castro",
-                    "email": "jericho@email.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "companyId": 1,
-                    "companyRole": "Recruiter"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-applicant
-              type: http
-              seq: 5
-            http:
-              method: POST
-              url: '{{base_url}}/auth/register'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Kyle Daryl",
-                    "lastName": "Advincula",
-                    "email": "kbadvincula@sscgi.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-admin
-              type: http
-              seq: 2
-            http:
-              method: POST
-              url: '{{base_url}}/auth/join-company'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Jimuel",
-                    "lastName": "Hipana",
-                    "email": "jimuel@email.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "companyId": 1,
-                    "companyRole": "Admin"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-owner
-              type: http
-              seq: 1
-            http:
-              method: POST
-              url: '{{base_url}}/auth/create-company'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Patrick",
-                    "lastName": "Palanas",
-                    "email": "patrick@email.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "name": "CareerGrid",
-                    "description": "CareerGrid Description...",
-                    "websiteUrl": "https://www.careergrid.com",
-                    "logoUrl": "https://www.careergrid.com/logo.webp"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
       - info:
           name: sign-in
           type: folder
@@ -229,28 +94,7 @@ items:
                 type: json
                 data: |-
                   {
-                    "email": "kyle@email.com",
-                    "password": "hahahaha"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-owner
-              type: http
-              seq: 2
-            http:
-              method: POST
-              url: '{{base_url}}/auth/login'
-              body:
-                type: json
-                data: |-
-                  {
-                    "email": "patrick@email.com",
+                    "email": "{{base_email}}+5@gmail.com",
                     "password": "hahahaha"
                   }
               auth: inherit
@@ -271,8 +115,104 @@ items:
                 type: json
                 data: |-
                   {
-                    "email": "jimuel@email.com",
+                    "email": "{{base_email}}+2@gmail.com",
                     "password": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-hiring-manager
+              type: http
+              seq: 5
+            http:
+              method: POST
+              url: '{{base_url}}/auth/login'
+              body:
+                type: json
+                data: |-
+                  {
+                    "email": "{{base_email}}+4@gmail.com",
+                    "password": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-owner
+              type: http
+              seq: 2
+            http:
+              method: POST
+              url: '{{base_url}}/auth/login'
+              body:
+                type: json
+                data: |-
+                  {
+                    "email": "{{base_email}}+1@gmail.com",
+                    "password": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-recruiter
+              type: http
+              seq: 4
+            http:
+              method: POST
+              url: '{{base_url}}/auth/login'
+              body:
+                type: json
+                data: |-
+                  {
+                    "email": "{{base_email}}+3@gmail.com",
+                    "password": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+      - info:
+          name: sign-up
+          type: folder
+          seq: 3
+        request:
+          auth: inherit
+        items:
+          - info:
+              name: as-company-admin
+              type: http
+              seq: 2
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/staff'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Jimuel",
+                    "lastName": "Hipana",
+                    "email": "{{base_email}}+2@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "companyId": 1,
+                    "companyRole": "Admin"
                   }
               auth: inherit
             settings:
@@ -287,13 +227,46 @@ items:
               seq: 4
             http:
               method: POST
-              url: '{{base_url}}/auth/login'
+              url: '{{base_url}}/auth/register/staff'
               body:
                 type: json
                 data: |-
                   {
-                    "email": "edward@email.com",
-                    "password": "hahahaha"
+                    "firstName": "Eduard",
+                    "lastName": "Gomez",
+                    "email": "{{base_email}}+4@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "companyId": 1,
+                    "companyRole": "HiringManager"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-owner
+              type: http
+              seq: 1
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/owner'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Patrick",
+                    "lastName": "Palanas",
+                    "email": "{{base_email}}+1@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "name": "CareerGrid",
+                    "description": "CareerGrid Description...",
+                    "websiteUrl": "https://www.careergrid.com",
+                    "logoUrl": "https://www.careergrid.com/logo.webp"
                   }
               auth: inherit
             settings:
@@ -305,16 +278,45 @@ items:
           - info:
               name: as-company-recruiter
               type: http
-              seq: 5
+              seq: 3
             http:
               method: POST
-              url: '{{base_url}}/auth/login'
+              url: '{{base_url}}/auth/register/staff'
               body:
                 type: json
                 data: |-
                   {
-                    "email": "jericho@email.com",
-                    "password": "hahahaha"
+                    "firstName": "Jericho",
+                    "lastName": "De Castro",
+                    "email": "{{base_email}}+3@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "companyId": 1,
+                    "companyRole": "Recruiter"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-applicant
+              type: http
+              seq: 5
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/applicant'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Kyle Daryl",
+                    "lastName": "Advincula",
+                    "email": "{{base_email}}+5@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha"
                   }
               auth: inherit
             settings:
@@ -329,5 +331,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-10-26T07:20:16.655Z'
+    exportedAt: '2026-10-27T06:50:12.700Z'
     exportedUsing: Bruno
