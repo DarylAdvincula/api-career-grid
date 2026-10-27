@@ -65,5 +65,12 @@ namespace CG.Controllers
             await _authService.LogoutAsync();
             return Ok();
         }
+
+        [HttpGet("verify/email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string code)
+        {
+            await _authService.VerifyEmailAsync(code);
+            return Ok();
+        }
     }
 }

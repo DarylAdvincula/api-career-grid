@@ -1,4 +1,5 @@
 using CG.DAL.Interfaces;
+using CG.Helpers.Interfaces;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
@@ -10,42 +11,28 @@ namespace CG.DAL.Implementations
     {
         private readonly AppDbContext _context;
         private readonly ILogger<DbSeeder> _logger;
-        private readonly IConfiguration _configuration;
+        private readonly ISystemConfiguration _systemConfiguration;
         private readonly IPasswordService _passwordService;
         private readonly IUserAccountRepository _userAccountRepository;
 
         public DbSeeder(
             AppDbContext context,
             ILogger<DbSeeder> logger,
-            IConfiguration configuration,
+            ISystemConfiguration systemConfiguration,
             IPasswordService passwordService,
             IUserAccountRepository userAccountRepository
         )
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
+            _systemConfiguration = systemConfiguration;
             _passwordService = passwordService;
             _userAccountRepository = userAccountRepository;
         }
 
         public async Task SeedAdmin()
         {
-            var adminEmail = _configuration.GetValue<string>("Seed:AdminEmail");
-            var adminPassword = _configuration.GetValue<string>("Seed:AdminPassword");
-            var adminFirstName = _configuration.GetValue<string>("Seed:AdminFirstName");
-            var adminLastName = _configuration.GetValue<string>("Seed:AdminLastName");            
-
-            if (adminEmail is null)
-                throw new InvalidOperationException("[Seeding] 'Seed:AdminEmail' is not configured.");
-            if (adminPassword is null)
-                throw new InvalidOperationException("[Seeding] 'Seed:AdminPassword' is not configured.");
-            else if (adminFirstName is null)
-                throw new InvalidOperationException("[Seeding] 'Seed:AdminFirstName' is not configured.");
-            else if (adminLastName is null)
-                throw new InvalidOperationException("[Seeding] 'Seed:AdminLastName' is not configured.");
-
-            var existingAdmin = await _userAccountRepository.GetByEmailAsync(adminEmail);
+            var existingAdmin = await _userAccountRepository.GetByEmailAsync(_systemConfiguration.AdminEmail);
 
             if (existingAdmin is not null)
             {
@@ -55,13 +42,14 @@ namespace CG.DAL.Implementations
             
             var adminAccount = new UserAccount
             {
-                FirstName = adminFirstName,
-                LastName = adminLastName,
-                Email = adminEmail,
+                FirstName = _systemConfiguration.AdminFirstName,
+                LastName = _systemConfiguration.AdminLastName,
+                Email = _systemConfiguration.AdminEmail,
+                IsVerified = true,
                 Role = Role.Admin
             };
 
-            adminAccount.PasswordHash = _passwordService.Hash(adminAccount, adminPassword);
+            adminAccount.PasswordHash = _passwordService.Hash(adminAccount, _systemConfiguration.AdminPassword);
 
             await _userAccountRepository.AddAsync(adminAccount);
             await _userAccountRepository.SaveChangesAsync();

@@ -17,5 +17,7 @@ namespace CG.Services.Interfaces
         Task LoginAsync(UserAccountLoginDto request);
         
         Task LogoutAsync();
+
+        Task VerifyEmailAsync(string verificationCode);
     }
 }

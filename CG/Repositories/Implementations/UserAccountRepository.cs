@@ -24,6 +24,11 @@ namespace CG.Repositories.Implementations
             return await _context.UserAccounts.FirstOrDefaultAsync(x => x.Email == email);
         }
 
+        public async Task<UserAccount?> GetByVerificationCodeAsync(string verificationCode)
+        {
+            return await _context.UserAccounts.FirstOrDefaultAsync(x => x.VerificationCode == verificationCode);
+        }
+
         public async Task<IEnumerable<UserAccount>> GetAllAsync()
         {
             return await _context.UserAccounts.AsNoTracking()

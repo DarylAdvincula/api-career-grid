@@ -6,6 +6,7 @@ namespace CG.Repositories.Interfaces
     {
         Task<UserAccount?> GetByIdAsync(int id);
         Task<UserAccount?> GetByEmailAsync(string email);
+        Task<UserAccount?> GetByVerificationCodeAsync(string verificationCode);
         Task<IEnumerable<UserAccount>> GetAllAsync();
 
         Task AddAsync(UserAccount userAccount);
