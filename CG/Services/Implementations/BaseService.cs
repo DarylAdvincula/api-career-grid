@@ -23,10 +23,10 @@ namespace CG.Services.Implementations
         public HttpContext GetHttpContext()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            
+
             if (httpContext is null)
                 throw new InvalidOperationException("No active HTTP context.");
-            
+
             return httpContext;
         }
 

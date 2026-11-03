@@ -1,3 +1,4 @@
+using CG.DTO.Skill;
 using CG.Models;
 
 namespace CG.DTO.ApplicantSkill
@@ -9,5 +10,6 @@ namespace CG.DTO.ApplicantSkill
         public int SkillId { get; set; }
         public ProficiencyLevel? ProficiencyLevel { get; set; }
         public int? YearsOfExperience { get; set; }
+        public SkillDto Skill { get; set; } = null!;
     }
 }

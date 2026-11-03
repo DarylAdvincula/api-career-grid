@@ -1,5 +1,6 @@
 using CG.DAL;
 using CG.DTO.ApplicantSkill;
+using CG.DTO.Skill;
 using CG.Exceptions;
 using CG.Models;
 using CG.Repositories.Interfaces;
@@ -7,21 +8,47 @@ using CG.Services.Interfaces;
 
 namespace CG.Services.Implementations
 {
-    public class ApplicantSkillService : IApplicantSkillService
+    public class ApplicantSkillService : BaseService, IApplicantSkillService
     {
         private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAccountRepository _userAccountRepository;
         private readonly IApplicantSkillRepository _applicantSkillRepository;
         private readonly ISkillRepository _skillRepository;
 
         public ApplicantSkillService(
             AppDbContext context,
+            IHttpContextAccessor httpContextAccessor,
+            IUserAccountRepository userAccountRepository,
             IApplicantSkillRepository applicantSkillRepository,
             ISkillRepository skillRepository
-        )
+        ) : base(httpContextAccessor, userAccountRepository)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            _userAccountRepository = userAccountRepository;
             _applicantSkillRepository = applicantSkillRepository;
             _skillRepository = skillRepository;
+        }
+
+        public static ApplicantSkillDto ToDto(ApplicantSkill applicantSkill)
+        {
+            return new ApplicantSkillDto
+            {
+                Id = applicantSkill.Id,
+                ApplicantProfileId = applicantSkill.ApplicantProfileId,
+                SkillId = applicantSkill.SkillId,
+                Skill = new SkillDto
+                {
+                    Id = applicantSkill.Skill.Id,
+                    Name = applicantSkill.Skill.Name,
+                    JobClassificationId = applicantSkill.Skill.JobClassificationId,
+                    JobSubClassificationId = applicantSkill.Skill.JobSubClassificationId,
+                    CreatedAt = applicantSkill.Skill.CreatedAt,
+                },
+                ProficiencyLevel = applicantSkill.ProficiencyLevel,
+                YearsOfExperience = applicantSkill.YearsOfExperience,
+            };
         }
 
         private async Task<ApplicantSkill> GetByIdOrThrowAsync(int id)
@@ -34,38 +61,27 @@ namespace CG.Services.Implementations
             return applicantSkill;
         }
 
-        private static ApplicantSkillDto ToDto(ApplicantSkill applicantSkill)
-        {
-            return new ApplicantSkillDto
-            {
-                Id = applicantSkill.Id,
-                ApplicantProfileId = applicantSkill.ApplicantProfileId,
-                SkillId = applicantSkill.SkillId,
-                ProficiencyLevel = applicantSkill.ProficiencyLevel,
-                YearsOfExperience = applicantSkill.YearsOfExperience,
-            };
-        }
-
         public async Task<ApplicantSkillDto> GetById(int id)
         {
             var applicantSkill = await GetByIdOrThrowAsync(id);
             return ToDto(applicantSkill);
         }
 
-        public async Task<IEnumerable<ApplicantSkillDto>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
+        public async Task<List<ApplicantSkillDto>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
         {
             var applicantSkills = await _applicantSkillRepository.GetAllByApplicantProfileIdAsync(applicantProfileId);
-            return applicantSkills.Select(ToDto);
+            return applicantSkills.Select(ToDto).ToList();
         }
 
-        public async Task<IEnumerable<ApplicantSkillDto>> GetAllAsync()
+        public async Task<List<ApplicantSkillDto>> GetAllAsync()
         {
             var applicantSkills = await _applicantSkillRepository.GetAllAsync();
-            return applicantSkills.Select(ToDto);
+            return applicantSkills.Select(ToDto).ToList();
         }
 
         public async Task<ApplicantSkillDto> CreateAsync(ApplicantSkillCreateDto request)
         {
+            var userAccount = await GetCurrentUser();
             using var transaction = await _context.Database.BeginTransactionAsync();
                 
             try
@@ -76,15 +92,15 @@ namespace CG.Services.Implementations
                 {
                     var newSkill = new Skill
                     {
-                        JobClassificationId = request.Skill.JobClassificationId,
-                        JobSubClassificationId = request.Skill.JobSubClassificationId,
-                        Name = request.Skill.Name
+                        JobClassificationId = request?.Skill?.JobClassificationId,
+                        JobSubClassificationId = request?.Skill?.JobSubClassificationId,
+                        Name = request!.Skill!.Name
                     };
 
                     await _skillRepository.AddAsync(newSkill);
                     await _skillRepository.SaveChangesAsync();
 
-                    newApplicantSkill.ApplicantProfileId = request.ApplicantProfileId;
+                    newApplicantSkill.ApplicantProfileId = userAccount.Id;
                     newApplicantSkill.SkillId = newSkill.Id;
                     newApplicantSkill.ProficiencyLevel = request.ProficiencyLevel;
                     newApplicantSkill.YearsOfExperience = request.YearsOfExperience;
@@ -96,7 +112,7 @@ namespace CG.Services.Implementations
                     if (existingSkill is null)
                         throw new NotFoundException($"Skill with id '{request.SkillId}' does not exist.");
                                     
-                    newApplicantSkill.ApplicantProfileId = request.ApplicantProfileId;
+                    newApplicantSkill.ApplicantProfileId = userAccount.Id;
                     newApplicantSkill.SkillId = (int)request.SkillId;
                     newApplicantSkill.ProficiencyLevel = request.ProficiencyLevel;
                     newApplicantSkill.YearsOfExperience = request.YearsOfExperience;

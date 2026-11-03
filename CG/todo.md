@@ -10,8 +10,8 @@
         - [/] Program.cs Registration
 
 - [/] Authentication
-    - [ ] User Registration
-        - [ ] Email Verification
+    - [/] User Registration
+        - [/] Email Verification
         - [/] As Applicant
     - [/] User Login
     - [/] Log out

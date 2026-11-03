@@ -1,4 +1,6 @@
+using CG.DAL;
 using CG.DTO.ApplicantProfile;
+using CG.DTO.ApplicantSkill;
 using CG.Exceptions;
 using CG.Models;
 using CG.Repositories.Interfaces;
@@ -6,12 +8,32 @@ using CG.Services.Interfaces;
 
 namespace CG.Services.Implementations
 {
-    public class ApplicantProfileService : IApplicantProfileService
+    public class ApplicantProfileService : BaseService, IApplicantProfileService
     {
+        private readonly AppDbContext _appDbContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAccountRepository _userAccountRepository;
+        private readonly ISkillRepository _skillRepository;
+        private readonly IApplicantSkillService _applicantSkillService;
+        private readonly IApplicantSkillRepository _applicantSkillRepository;
         private readonly IApplicantProfileRepository _applicantProfileRepository;
         
-        public ApplicantProfileService(IApplicantProfileRepository applicantProfileRepository)
+        public ApplicantProfileService(
+            AppDbContext appDbContext,
+            IHttpContextAccessor httpContextAccessor,
+            IUserAccountRepository userAccountRepository,
+            ISkillRepository skillRepository,
+            IApplicantSkillService applicantSkillService,
+            IApplicantSkillRepository applicantSkillRepository,
+            IApplicantProfileRepository applicantProfileRepository
+        ) : base(httpContextAccessor, userAccountRepository)
         {
+            _appDbContext = appDbContext;
+            _httpContextAccessor = httpContextAccessor;
+            _userAccountRepository = userAccountRepository;
+            _skillRepository = skillRepository;
+            _applicantSkillService = applicantSkillService;
+            _applicantSkillRepository = applicantSkillRepository;
             _applicantProfileRepository = applicantProfileRepository;
         }
 
@@ -25,7 +47,10 @@ namespace CG.Services.Implementations
             return profile;
         }
 
-        private static ApplicantProfileDto ToDto(ApplicantProfile applicantProfile)
+        private static ApplicantProfileDto ToDto(
+            ApplicantProfile applicantProfile, 
+            List<ApplicantSkillDto>? applicantSkillsDto = null
+        )
         {
             return new ApplicantProfileDto
             {
@@ -35,13 +60,15 @@ namespace CG.Services.Implementations
                 HomeLocation = applicantProfile.HomeLocation,
                 Bio = applicantProfile.Bio,
                 CreatedAt = applicantProfile.CreatedAt,
+                Skills = applicantSkillsDto ?? []
             };
         }
 
         public async Task<ApplicantProfileDto> GetByIdAsync(int id)
         {
             var profile = await GetByIdOrThrowAsync(id);
-            return ToDto(profile);
+            var skills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(profile.Id);
+            return ToDto(profile, skills);
         }
 
         public async Task<ApplicantProfileDto?> GetByUserAccountIdAsync(int userAccountId)
@@ -51,27 +78,84 @@ namespace CG.Services.Implementations
             if (profile is null)
                 return null;
 
-            return ToDto(profile);
+            var skills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(profile.Id);
+            return ToDto(profile, skills);
         }
 
         public async Task<ApplicantProfileDto> CreateAsync(ApplicantProfileCreateDto request)
         {
-            var existingProfile = await _applicantProfileRepository.GetByUserAccountIdAsync(request.UserAccountId);
-
-            if (existingProfile is not null)
-                throw new ConflictException("You already have a profile.");
+            using var transaction = await _appDbContext.Database.BeginTransactionAsync();
             
-            var newProfile = new ApplicantProfile
+            try
             {
-                UserAccountId = request.UserAccountId,
-                Headline = request.Headline,
-                HomeLocation = request.HomeLocation,
-                Bio = request.Bio
-            };
+                var userAccount = await GetCurrentUser();
+                var existingProfile = await _applicantProfileRepository.GetByUserAccountIdAsync(userAccount.Id);
 
-            await _applicantProfileRepository.AddAsync(newProfile);
-            await _applicantProfileRepository.SaveChangesAsync();
-            return ToDto(newProfile);
+                if (existingProfile is not null)
+                    throw new ConflictException("You already have a profile.");
+                
+                var newProfile = new ApplicantProfile
+                {
+                    UserAccountId = userAccount.Id,
+                    Headline = request.Headline,
+                    HomeLocation = request.HomeLocation,
+                    Bio = request.Bio
+                };
+
+                await _applicantProfileRepository.AddAsync(newProfile);
+                await _applicantProfileRepository.SaveChangesAsync();
+
+                foreach (var skill in request.Skills)
+                {
+                    var newApplicantSkill = new ApplicantSkill();
+
+                    if (skill.SkillId is null)
+                    {
+                        var jobClassification = new JobClassification();
+                        var jobSubClassification = new JobSubClassification();
+                        
+                        var newSkill = new Skill
+                        {
+                            JobClassificationId = skill?.Skill?.JobClassificationId,
+                            JobSubClassificationId = skill?.Skill?.JobSubClassificationId,
+                            Name = skill!.Skill!.Name
+                        };
+
+                        await _skillRepository.AddAsync(newSkill);
+                        await _skillRepository.SaveChangesAsync();
+
+                        newApplicantSkill.ApplicantProfileId = newProfile.Id;
+                        newApplicantSkill.SkillId = newSkill.Id;
+                        newApplicantSkill.ProficiencyLevel = skill.ProficiencyLevel;
+                        newApplicantSkill.YearsOfExperience = skill.YearsOfExperience;
+                    }
+                    else
+                    {
+                        var existingSkill = await _skillRepository.GetByIdAsync((int)skill.SkillId);
+                        
+                        if (existingSkill is null)
+                            throw new NotFoundException($"Skill with id '{skill.SkillId}' does not exist.");
+                                        
+                        newApplicantSkill.ApplicantProfileId = userAccount.Id;
+                        newApplicantSkill.SkillId = (int)skill.SkillId;
+                        newApplicantSkill.ProficiencyLevel = skill.ProficiencyLevel;
+                        newApplicantSkill.YearsOfExperience = skill.YearsOfExperience;
+                    }
+                    
+                    await _applicantSkillRepository.AddAsync(newApplicantSkill);
+                    await _applicantSkillRepository.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                var applicantSkills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(newProfile.Id);
+                return ToDto(newProfile, applicantSkills);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<ApplicantProfileDto> UpdateAsync(int id, ApplicantProfileUpdateDto request)

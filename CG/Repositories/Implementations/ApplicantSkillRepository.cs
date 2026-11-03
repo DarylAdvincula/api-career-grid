@@ -22,6 +22,7 @@ namespace CG.Repositories.Implementations
         public async Task<IEnumerable<ApplicantSkill>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
         {
             return await _context.ApplicantSkills.Where(x => x.ApplicantProfileId == applicantProfileId)
+                .Include(x => x.Skill)
                 .AsNoTracking()
                 .ToListAsync();
         }

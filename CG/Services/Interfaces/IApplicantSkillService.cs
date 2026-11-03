@@ -1,4 +1,5 @@
 using CG.DTO.ApplicantSkill;
+using CG.Models;
 
 namespace CG.Services.Interfaces
 {
@@ -6,9 +7,9 @@ namespace CG.Services.Interfaces
     {
         Task<ApplicantSkillDto> GetById(int id);
         
-        Task<IEnumerable<ApplicantSkillDto>> GetAllByApplicantProfileIdAsync(int applicantProfileId);
+        Task<List<ApplicantSkillDto>> GetAllByApplicantProfileIdAsync(int applicantProfileId);
         
-        Task<IEnumerable<ApplicantSkillDto>> GetAllAsync();
+        Task<List<ApplicantSkillDto>> GetAllAsync();
         
         Task<ApplicantSkillDto> CreateAsync(ApplicantSkillCreateDto request);
         

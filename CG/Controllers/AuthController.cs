@@ -27,28 +27,19 @@ namespace CG.Controllers
         [HttpPost("register/applicant")]
         public async Task<IActionResult> RegisterAsApplicant([FromBody] UserAccountCreateDto request)
         {
-            return StatusCode(
-                StatusCodes.Status201Created,
-                await _authService.RegisterAsApplicant(request)
-            );
+            return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsApplicant(request));
         }
 
         [HttpPost("register/owner")]
         public async Task<IActionResult> RegisterAsOwner([FromBody] CompanyCreateDto request)
         {
-            return StatusCode(
-                StatusCodes.Status201Created,
-                await _authService.RegisterAsOwner(request)
-            );
+            return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsOwner(request));
         }
 
         [HttpPost("register/staff")]
         public async Task<IActionResult> RegisterAsStaff([FromBody] CompanyJoinDto request)
         {
-            return StatusCode(
-                StatusCodes.Status201Created,
-                await _authService.RegisterAsStaff(request)
-            );
+            return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsStaff(request));
         }
 
         [HttpPost("login")]
