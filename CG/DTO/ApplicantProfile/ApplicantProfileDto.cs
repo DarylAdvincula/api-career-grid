@@ -1,3 +1,5 @@
+using CG.DTO.ApplicantSkill;
+
 namespace CG.DTO.ApplicantProfile
 {
     public class ApplicantProfileDto
@@ -8,5 +10,6 @@ namespace CG.DTO.ApplicantProfile
         public string? HomeLocation { get; set; }
         public string? Bio { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<ApplicantSkillDto> Skills { get; set; } = [];
     }
 }

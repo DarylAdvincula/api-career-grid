@@ -11,7 +11,6 @@ using CG.Services.Implementations;
 using CG.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Resend;
 
 DotNetEnv.Env.Load();
 
@@ -64,19 +63,7 @@ builder.Services.AddScoped<IWorkExperienceService, WorkExperienceService>();
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
 builder.Services.AddOptions();
-builder.Services.AddHttpClient<ResendClient>();
 
-builder.Services.Configure<ResendClientOptions>(options =>
-{
-    var resendApiKey = builder.Configuration.GetValue<string>("Resend:ApiKey");
-
-    if (string.IsNullOrWhiteSpace(resendApiKey))
-        throw new InvalidOperationException("[Resend] 'Resend:ApiKey' is not configured.");
-
-    options.ApiToken = resendApiKey;
-});
-
-builder.Services.AddTransient<IResend, ResendClient>();
 builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
