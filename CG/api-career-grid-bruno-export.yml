@@ -196,6 +196,30 @@ items:
           auth: inherit
         items:
           - info:
+              name: as-applicant
+              type: http
+              seq: 5
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/applicant'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Kyle",
+                    "lastName": "Advincula",
+                    "email": "{{base_email}}+5@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
               name: as-company-admin
               type: http
               seq: 2
@@ -301,22 +325,46 @@ items:
               followRedirects: true
               maxRedirects: 5
               forwardAuthorizationHeader: false
+  - info:
+      name: profile
+      type: folder
+      seq: 2
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: applicant
+          type: folder
+          seq: 1
+        request:
+          auth: inherit
+        items:
           - info:
-              name: as-applicant
+              name: create
               type: http
-              seq: 5
+              seq: 1
             http:
               method: POST
-              url: '{{base_url}}/auth/register/applicant'
+              url: '{{base_url}}/profile/applicant'
               body:
                 type: json
                 data: |-
                   {
-                    "firstName": "Kyle Daryl",
-                    "lastName": "Advincula",
-                    "email": "{{base_email}}+5@gmail.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha"
+                    "headline": "Test Headline",
+                    "homeLocation": "Dimakita Street, Tinago City, Surigone del None-te",
+                    "bio": "string",
+                    "skills": [
+                      {
+                        "skillId": null,
+                        "yearsOfExperience": 2,
+                        "proficiencyLevel": "Intermediate",
+                        "skill": {
+                          "jobClassificationId": null,
+                          "jobSubClassificationId": null,
+                          "name": "ASP.NET Core Web API Development"
+                        }
+                      }
+                    ]
                   }
               auth: inherit
             settings:
@@ -331,5 +379,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-10-27T06:50:12.700Z'
+    exportedAt: '2026-11-03T02:34:01.035Z'
     exportedUsing: Bruno
