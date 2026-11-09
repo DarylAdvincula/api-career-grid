@@ -1,6 +1,8 @@
 using CG.DTO.Company;
 using CG.DTO.UserAccount;
 using CG.Services.Interfaces;
+using CG.Validators.Company;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +13,21 @@ namespace CG.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IValidator<UserAccountCreateDto> _applicantCreateValidator;
+        private readonly IValidator<CompanyCreateDto> _companyCreateValidator;
+        private readonly IValidator<CompanyJoinDto> _companyJoinValidator;
 
-        public AuthController(IAuthService authService)
+        public AuthController(
+            IAuthService authService,
+            IValidator<UserAccountCreateDto> applicantCreateValidator,
+            IValidator<CompanyCreateDto> companyCreateValidator,
+            IValidator<CompanyJoinDto> companyJoinValidator
+        )
         {
             _authService = authService;
+            _applicantCreateValidator = applicantCreateValidator;
+            _companyCreateValidator = companyCreateValidator;
+            _companyJoinValidator = companyJoinValidator;
         }
 
         [Authorize]
@@ -27,18 +40,51 @@ namespace CG.Controllers
         [HttpPost("register/applicant")]
         public async Task<IActionResult> RegisterAsApplicant([FromBody] UserAccountCreateDto request)
         {
+            var result = await _applicantCreateValidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors.Select(e => new
+                {
+                    e.PropertyName,
+                    e.ErrorMessage,
+                }));
+            }
+
             return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsApplicant(request));
         }
 
         [HttpPost("register/owner")]
         public async Task<IActionResult> RegisterAsOwner([FromBody] CompanyCreateDto request)
         {
+            var result = await _companyCreateValidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors.Select(e => new
+                {
+                    e.PropertyName,
+                    e.ErrorMessage,
+                }));
+            }
+            
             return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsOwner(request));
         }
 
         [HttpPost("register/staff")]
         public async Task<IActionResult> RegisterAsStaff([FromBody] CompanyJoinDto request)
         {
+            var result = await _companyJoinValidator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors.Select(e => new
+                {
+                    e.PropertyName,
+                    e.ErrorMessage,
+                }));
+            }
+
             return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsStaff(request));
         }
 

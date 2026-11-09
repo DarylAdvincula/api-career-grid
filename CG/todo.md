@@ -36,3 +36,21 @@
     - [ ] Applicant Profile Picture
 
 - [ ] Logging
+
+- [ ] Input Validation
+    - [ ] Users
+        - [ ] Applicant
+            - [/] Registration
+            - [/] Profile
+                - [/] Create
+                - [ ] Update
+        - [ ] Company Members
+            - [ ] Owner
+                - [/] Registration
+            - [ ] Admin
+                - [/] Registration
+            - [ ] Recruiter
+                - [/] Registration
+            - [ ] Hiring Manager
+                - [/] Registration
+
