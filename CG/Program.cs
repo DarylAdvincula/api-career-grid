@@ -9,7 +9,15 @@ using CG.Repositories.Implementations;
 using CG.Repositories.Interfaces;
 using CG.Services.Implementations;
 using CG.Services.Interfaces;
+using CG.Validators.Applicant;
+using CG.Validators.ApplicantSkill;
+using CG.Validators.Company;
+using CG.Validators.Skill;
+using CG.Validators.UserAccount;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.Load();
@@ -99,15 +107,30 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(
-            new JsonStringEnumConverter(allowIntegerValues: false)
-        );
-    });
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddValidatorsFromAssemblyContaining<UserAccountCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CompanyCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CompanyJoinValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<SkillCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ApplicantSkillCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ApplicantProfileCreateValidator>();
+
+builder.Services.AddOptions<CorsOptions>()
+    .Configure<ISystemConfiguration>((options, systemConfig) =>
+    {
+        options.AddPolicy("FrontendPolicy", policy =>
+        {
+            policy
+                .WithOrigins(systemConfig.AppFrontendUrl)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
 
 var app = builder.Build();
 

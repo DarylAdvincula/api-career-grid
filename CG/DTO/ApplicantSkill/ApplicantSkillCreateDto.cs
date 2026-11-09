@@ -7,7 +7,7 @@ namespace CG.DTO.ApplicantSkill
     {
         public int? SkillId { get; set; }
         public int? YearsOfExperience { get; set; }
-        public ProficiencyLevel? ProficiencyLevel { get; set; }
+        public string ProficiencyLevel { get; set; } = string.Empty;
         public SkillCreateDto? Skill { get; set; }
     }
 }

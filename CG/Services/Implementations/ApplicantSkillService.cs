@@ -2,6 +2,7 @@ using CG.DAL;
 using CG.DTO.ApplicantSkill;
 using CG.DTO.Skill;
 using CG.Exceptions;
+using CG.Helpers.Implementations;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
@@ -102,7 +103,7 @@ namespace CG.Services.Implementations
 
                     newApplicantSkill.ApplicantProfileId = userAccount.Id;
                     newApplicantSkill.SkillId = newSkill.Id;
-                    newApplicantSkill.ProficiencyLevel = request.ProficiencyLevel;
+                    newApplicantSkill.ProficiencyLevel = EnumHandler.Parse<ProficiencyLevel>(request.ProficiencyLevel);
                     newApplicantSkill.YearsOfExperience = request.YearsOfExperience;
                 }
                 else
@@ -114,7 +115,7 @@ namespace CG.Services.Implementations
                                     
                     newApplicantSkill.ApplicantProfileId = userAccount.Id;
                     newApplicantSkill.SkillId = (int)request.SkillId;
-                    newApplicantSkill.ProficiencyLevel = request.ProficiencyLevel;
+                    newApplicantSkill.ProficiencyLevel = EnumHandler.Parse<ProficiencyLevel>(request.ProficiencyLevel);
                     newApplicantSkill.YearsOfExperience = request.YearsOfExperience;
                 }
 

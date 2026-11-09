@@ -5,6 +5,7 @@ using CG.DTO.Company;
 using CG.DTO.UserAccount;
 using CG.DTO.UserSession;
 using CG.Exceptions;
+using CG.Helpers.Implementations;
 using CG.Helpers.Interfaces;
 using CG.Models;
 using CG.Repositories.Interfaces;
@@ -234,7 +235,7 @@ namespace CG.Services.Implementations
         
         public async Task<UserAccountDto> RegisterAsStaff(CompanyJoinDto request)
         {
-            if (request.CompanyRole == CompanyRole.Owner)
+            if (request.CompanyRole == CompanyRole.Owner.ToString())
                 throw new BadRequestException("You cannot request to join into a company as an owner.");
             
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -251,7 +252,7 @@ namespace CG.Services.Implementations
                 {
                     UserAccountId = newUserAccount.Id,
                     CompanyId = request.CompanyId,
-                    CompanyRole = request.CompanyRole
+                    CompanyRole = EnumHandler.Parse<CompanyRole>(request.CompanyRole)
                 };
 
                 await _employerProfileRepository.AddAsync(newUserProfile);
