@@ -1,7 +1,6 @@
 using CG.DTO.Company;
 using CG.DTO.UserAccount;
 using CG.Services.Interfaces;
-using CG.Validators.Company;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

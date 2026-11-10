@@ -1,4 +1,5 @@
 using CG.DTO.JobPosting;
+using CG.Models;
 
 namespace CG.Services.Interfaces
 {
@@ -8,24 +9,27 @@ namespace CG.Services.Interfaces
 
         Task<IEnumerable<JobPostingDto>> GetAllByCompanyIdAsync(int companyId);
 
-        Task<IEnumerable<JobPostingDto>> GetAllAsync(string? search);
+        Task<IEnumerable<JobPostingDto>> GetAllAsync(
+            string? search = null, 
+            ApprovalStatus? approvalStatus = null,
+            bool? active = null
+        );
 
-        Task<JobPostingDto> CreateAsDraftAsync(JobPostingCreateDto request);
-
-        Task<JobPostingDto> CreateAsPendingAsync(JobPostingCreateDto request);
+        Task<JobPostingDto> CreateAsync(JobPostingCreateDto request);
 
         Task<JobPostingDto> UpdateAsync(
             int id,
             JobPostingUpdateDto request
         );
 
-        Task<JobPostingDto> ApproveAsync(
-            int id,
-            int adminAccountUserId
-        );
+        Task<JobPostingDto> MarkForApproval(int id);
+
+        Task<JobPostingDto> ApproveAsync(int id);
 
         Task<JobPostingDto> RejectAsync(int id);
 
-        Task DeleteAsync(int id);
+        Task<JobPostingDto> ArchiveAsync(int id);
+
+        Task<JobPostingDto> RestoreAsync(int id);
     }
 }

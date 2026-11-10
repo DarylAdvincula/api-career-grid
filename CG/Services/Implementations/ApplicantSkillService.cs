@@ -12,8 +12,6 @@ namespace CG.Services.Implementations
     public class ApplicantSkillService : BaseService, IApplicantSkillService
     {
         private readonly AppDbContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAccountRepository _userAccountRepository;
         private readonly IApplicantSkillRepository _applicantSkillRepository;
         private readonly ISkillRepository _skillRepository;
 
@@ -23,11 +21,12 @@ namespace CG.Services.Implementations
             IUserAccountRepository userAccountRepository,
             IApplicantSkillRepository applicantSkillRepository,
             ISkillRepository skillRepository
-        ) : base(httpContextAccessor, userAccountRepository)
+        ) : base(
+            httpContextAccessor,
+            userAccountRepository
+        )
         {
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
-            _userAccountRepository = userAccountRepository;
             _applicantSkillRepository = applicantSkillRepository;
             _skillRepository = skillRepository;
         }
@@ -82,7 +81,7 @@ namespace CG.Services.Implementations
 
         public async Task<ApplicantSkillDto> CreateAsync(ApplicantSkillCreateDto request)
         {
-            var userAccount = await GetCurrentUser();
+            var userAccount = await GetCurrentUserAsync();
             using var transaction = await _context.Database.BeginTransactionAsync();
                 
             try
