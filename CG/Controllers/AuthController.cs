@@ -1,5 +1,6 @@
 using CG.DTO.Company;
 using CG.DTO.UserAccount;
+using CG.Exceptions;
 using CG.Helpers.Interfaces;
 using CG.Services.Interfaces;
 using FluentValidation;
@@ -107,10 +108,22 @@ namespace CG.Controllers
         }
 
         [HttpGet("verify/email")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] string code)
+        public async Task<IActionResult> VerifyEmail([FromQuery] string? code)
         {
-            await _authService.VerifyEmailAsync(code);
-            return RedirectPermanent(_systemConfiguration.AppFrontendUrl + "/login?verified=true");
+            Response.Headers["Cache-Control"] = "no-store";
+            var verified = false;
+
+            try
+            {
+                await _authService.VerifyEmailAsync(code);
+                verified = true;
+            }
+            catch (Exception)
+            {
+                
+            }
+
+            return RedirectPermanent(_systemConfiguration.AppFrontendUrl + "/login?verified=" + (verified ? "true" : "false"));
         }
     }
 }
