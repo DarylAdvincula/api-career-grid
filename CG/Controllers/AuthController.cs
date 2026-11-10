@@ -110,7 +110,7 @@ namespace CG.Controllers
         public async Task<IActionResult> VerifyEmail([FromQuery] string code)
         {
             await _authService.VerifyEmailAsync(code);
-            return RedirectPermanent(_systemConfiguration.AppFrontendUrl + "/login");
+            return RedirectPermanent(_systemConfiguration.AppFrontendUrl + "/login?verified=true");
         }
     }
 }
