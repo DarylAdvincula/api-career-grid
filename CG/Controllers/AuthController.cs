@@ -1,5 +1,6 @@
 using CG.DTO.Company;
 using CG.DTO.UserAccount;
+using CG.Helpers.Interfaces;
 using CG.Services.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -11,18 +12,21 @@ namespace CG.Controllers
     [Route("/api/auth")]
     public class AuthController : ControllerBase
     {
+        private readonly ISystemConfiguration _systemConfiguration;
         private readonly IAuthService _authService;
         private readonly IValidator<UserAccountCreateDto> _applicantCreateValidator;
         private readonly IValidator<CompanyCreateDto> _companyCreateValidator;
         private readonly IValidator<CompanyJoinDto> _companyJoinValidator;
 
         public AuthController(
+            ISystemConfiguration systemConfiguration,
             IAuthService authService,
             IValidator<UserAccountCreateDto> applicantCreateValidator,
             IValidator<CompanyCreateDto> companyCreateValidator,
             IValidator<CompanyJoinDto> companyJoinValidator
         )
         {
+            _systemConfiguration = systemConfiguration;
             _authService = authService;
             _applicantCreateValidator = applicantCreateValidator;
             _companyCreateValidator = companyCreateValidator;
@@ -106,7 +110,7 @@ namespace CG.Controllers
         public async Task<IActionResult> VerifyEmail([FromQuery] string code)
         {
             await _authService.VerifyEmailAsync(code);
-            return Ok();
+            return RedirectPermanent(_systemConfiguration.AppFrontendUrl + "/login");
         }
     }
 }
