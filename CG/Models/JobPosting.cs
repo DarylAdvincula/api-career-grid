@@ -7,8 +7,7 @@ namespace CG.Models
     {
         Draft,
         Pending,
-        Published,
-        Rejected
+        Published
     }
 
     public enum JobType
@@ -42,6 +41,8 @@ namespace CG.Models
 
         public JobType? JobType { get; set; }
         public WorkEnvironment? WorkEnvironment { get; set; }
+
+        [StringLength(150)]
         public string? Location { get; set; }
 
         [Column(TypeName = "money")]

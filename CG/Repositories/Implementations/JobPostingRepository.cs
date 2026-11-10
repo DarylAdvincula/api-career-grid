@@ -26,12 +26,22 @@ namespace CG.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<JobPosting>> GetAllAsync(string? search)
+        public async Task<IEnumerable<JobPosting>> GetAllAsync(
+            string? search = null,
+            ApprovalStatus? approvalStatus = null,
+            bool? active = null
+        )
         {
             var jobPostingsQuery = _context.JobPostings.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
                 jobPostingsQuery = jobPostingsQuery.Where(x => x.Title.Contains(search));
+            
+            if (approvalStatus is not null)
+                jobPostingsQuery = jobPostingsQuery.Where(x => x.ApprovalStatus == approvalStatus);
+            
+            if (active is not null)
+                jobPostingsQuery = jobPostingsQuery.Where(x => x.IsActive == active);
 
             return await jobPostingsQuery
                 .AsNoTracking()

@@ -6,6 +6,6 @@ namespace CG.Services.Interfaces
     {
         public HttpContext GetHttpContext();
 
-        Task<UserAccount> GetCurrentUser();
+        Task<UserAccount> GetCurrentUserAsync();
     }
 }

@@ -20,8 +20,6 @@ namespace CG.Services.Implementations
     public class AuthService : BaseService, IAuthService
     {
         private readonly AppDbContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAccountRepository _userAccountRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ISystemConfiguration _systemConfiguration;
         private readonly ICompanyService _companyService;
@@ -48,13 +46,11 @@ namespace CG.Services.Implementations
             IPasswordService passwordService,
             IUserSessionService userSessionService
         ) : base(
-            httpContextAccessor, 
+            httpContextAccessor,
             userAccountRepository
         )
         {
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
-            _userAccountRepository = userAccountRepository;
             _companyRepository = companyRepository;
             _systemConfiguration = systemConfiguration;
             _companyService = companyService;
@@ -81,6 +77,14 @@ namespace CG.Services.Implementations
                 new(ClaimTypes.Role, role.ToString()),
                 new("session_id", userSessionId.ToString())
             };
+
+            if (role == Role.Employer)
+            {
+                var currentEmployerProfile = await _employerProfileRepository.GetByUserAccountIdAsync(userAccountId);
+                
+                claims.Add(new(ClaimTypes.Role, currentEmployerProfile!.CompanyRole.ToString()));
+            }
+
             var identity = new ClaimsIdentity(
                 claims,
                 CookieAuthenticationDefaults.AuthenticationScheme
@@ -127,36 +131,36 @@ namespace CG.Services.Implementations
 
         public async Task<AccountProfileDto> MeAsync()
         {
-            var currentUserAccount = await GetCurrentUser();
+            var currentUser = await GetCurrentUserAsync();
             
-            if (currentUserAccount.Role == Role.Admin)
+            if (currentUser.Role == Role.Admin)
             {
                 return new AdminDto
                 {
-                    Account = ToDto(currentUserAccount)
+                    Account = ToDto(currentUser)
                 };
             }
-            else if (currentUserAccount.Role == Role.Employer)
+            else if (currentUser.Role == Role.Employer)
             {
-                var employerProfile = await _employerProfileService.GetByUserAccountIdAsync(currentUserAccount.Id);
+                var employerProfile = await _employerProfileService.GetByUserAccountIdAsync(currentUser.Id);
                 var company = await _companyService.GetByIdAsync(employerProfile.CompanyId);
                 return new EmployerDto
                 {
-                    Account = ToDto(currentUserAccount),
+                    Account = ToDto(currentUser),
                     Profile = employerProfile,
                     Company = company
                 };
             }
             else
             {
-                var applicantProfile = await _applicantProfileService.GetByUserAccountIdAsync(currentUserAccount.Id);
+                var applicantProfile = await _applicantProfileService.GetByUserAccountIdAsync(currentUser.Id);
 
                 if (applicantProfile is not null)
                     applicantProfile.Skills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(applicantProfile.Id);
 
                 return new ApplicantDto
                 {
-                    Account = ToDto(currentUserAccount),
+                    Account = ToDto(currentUser),
                     Profile = applicantProfile
                 };
             }

@@ -8,8 +8,8 @@ namespace CG.Services.Implementations
 {
     public class BaseService : IBaseService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAccountRepository _userAccountRepository;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly IUserAccountRepository _userAccountRepository;
         
         public BaseService(
             IHttpContextAccessor httpContextAccessor,
@@ -30,7 +30,7 @@ namespace CG.Services.Implementations
             return httpContext;
         }
 
-        public async Task<UserAccount> GetCurrentUser()
+        public async Task<UserAccount> GetCurrentUserAsync()
         {
             var httpContext = GetHttpContext();
             

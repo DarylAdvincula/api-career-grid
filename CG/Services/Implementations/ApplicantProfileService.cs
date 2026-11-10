@@ -12,8 +12,6 @@ namespace CG.Services.Implementations
     public class ApplicantProfileService : BaseService, IApplicantProfileService
     {
         private readonly AppDbContext _appDbContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAccountRepository _userAccountRepository;
         private readonly ISkillRepository _skillRepository;
         private readonly IApplicantSkillService _applicantSkillService;
         private readonly IApplicantSkillRepository _applicantSkillRepository;
@@ -30,8 +28,6 @@ namespace CG.Services.Implementations
         ) : base(httpContextAccessor, userAccountRepository)
         {
             _appDbContext = appDbContext;
-            _httpContextAccessor = httpContextAccessor;
-            _userAccountRepository = userAccountRepository;
             _skillRepository = skillRepository;
             _applicantSkillService = applicantSkillService;
             _applicantSkillRepository = applicantSkillRepository;
@@ -89,7 +85,7 @@ namespace CG.Services.Implementations
             
             try
             {
-                var userAccount = await GetCurrentUser();
+                var userAccount = await GetCurrentUserAsync();
                 var existingProfile = await _applicantProfileRepository.GetByUserAccountIdAsync(userAccount.Id);
 
                 if (existingProfile is not null)

@@ -5,6 +5,7 @@ using CG.DAL.Interfaces;
 using CG.Exceptions;
 using CG.Helpers.Implementations;
 using CG.Helpers.Interfaces;
+using CG.Models;
 using CG.Repositories.Implementations;
 using CG.Repositories.Interfaces;
 using CG.Services.Implementations;
@@ -12,6 +13,7 @@ using CG.Services.Interfaces;
 using CG.Validators.Applicant;
 using CG.Validators.ApplicantSkill;
 using CG.Validators.Company;
+using CG.Validators.JobPosting;
 using CG.Validators.Skill;
 using CG.Validators.UserAccount;
 using FluentValidation;
@@ -54,6 +56,7 @@ builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddScoped<IBaseService, BaseService>();
+builder.Services.AddScoped<IBaseEmployerService, BaseEmployerService>();
 builder.Services.AddScoped<IApplicantProfileService, ApplicantProfileService>();
 builder.Services.AddScoped<IApplicantSkillService, ApplicantSkillService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
@@ -104,8 +107,6 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
-
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -118,6 +119,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CompanyJoinValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SkillCreateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicantSkillCreateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicantProfileCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<JobPostingCreateValidator>();
 
 builder.Services.AddOptions<CorsOptions>()
     .Configure<ISystemConfiguration>((options, systemConfig) =>

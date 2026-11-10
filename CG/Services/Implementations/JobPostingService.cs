@@ -1,16 +1,28 @@
 using CG.DTO.JobPosting;
 using CG.Exceptions;
+using CG.Helpers.Implementations;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
 
 namespace CG.Services.Implementations
 {
-    public class JobPostingService : IJobPostingService
+    public class JobPostingService : BaseEmployerService, IJobPostingService
     {
         private readonly IJobPostingRepository _jobPostingRepository;
         
-        public JobPostingService(IJobPostingRepository jobPostingRepository)
+        public JobPostingService(
+            IHttpContextAccessor httpContextAccessor,
+            IUserAccountRepository userAccountRepository,
+            ICompanyRepository companyRepository,
+            IJobPostingRepository jobPostingRepository,
+            IEmployerProfileRepository employerProfileRepository
+        ) : base(
+            httpContextAccessor,
+            userAccountRepository,
+            companyRepository,
+            employerProfileRepository
+        )
         {
             _jobPostingRepository = jobPostingRepository;
         }
@@ -62,51 +74,83 @@ namespace CG.Services.Implementations
             return jobPostings.Select(ToDto);
         }
 
-        public async Task<IEnumerable<JobPostingDto>> GetAllAsync(string? search)
-        {
-            var jobPostings = await _jobPostingRepository.GetAllAsync(search);
+        public async Task<IEnumerable<JobPostingDto>> GetAllAsync(
+            string? search = null, 
+            ApprovalStatus? approvalStatus = null,
+            bool? active = null
+        )
+        {           
+            var currentUser = await GetCurrentUserAsync();
+            var forbiddenException = new ForbiddenException($"You are not allowed to access this resource.");
+
+            // applicant, owner, and hiring manager
+            var hasNonPublishedOrInactiveFilter = (
+                (
+                    approvalStatus is not null && 
+                    approvalStatus != ApprovalStatus.Published
+                ) ||
+                active == false
+            );
+
+            // handle restrictions for each role
+            if (currentUser.Role == Role.Applicant)
+            {
+                if (hasNonPublishedOrInactiveFilter)
+                    throw forbiddenException;
+
+                active = true;
+                approvalStatus = ApprovalStatus.Published;
+            }
+            else
+            {
+                var currentProfile = await GetCurrentProfileAsync();
+
+                if (
+                    currentProfile.CompanyRole == CompanyRole.Owner || 
+                    currentProfile.CompanyRole == CompanyRole.HiringManager
+                )
+                {
+                    if (hasNonPublishedOrInactiveFilter)
+                        throw forbiddenException;
+
+                    active = true;
+                    approvalStatus = ApprovalStatus.Published;
+                }
+                else if (
+                    currentProfile.CompanyRole == CompanyRole.Recruiter && 
+                    active == false // no access to archived posts (admin only)
+                )
+                    throw forbiddenException;
+            }
+
+            var jobPostings = await _jobPostingRepository.GetAllAsync(search, approvalStatus, active);
             return jobPostings.Select(ToDto);
         }
 
-        public async Task<JobPostingDto> CreateAsDraftAsync(JobPostingCreateDto request)
+        public async Task<JobPostingDto> CreateAsync(JobPostingCreateDto request)
         {
+            var currentUser = await GetCurrentUserAsync();
+            var currentCompany = await GetCurrentCompanyAsync();
             var newJobPosting = new JobPosting
             {
-                CompanyId = request.CompanyId,
-                CreatedByEmployerId = request.CreatedByEmployerId,
+                CompanyId = currentCompany.Id,
+                CreatedByEmployerId = currentUser.Id,
                 JobClassificationId = request.JobClassificationId,
                 JobSubClassificationId = request.JobSubClassificationId,
                 Title = request.Title,
                 RequirementsMarkdown = request.RequirementsMarkdown,
-                JobType = request.JobType,
-                WorkEnvironment = request.WorkEnvironment,
+                JobType = string.IsNullOrEmpty(request.JobType)
+                    ? null
+                    : EnumHandler.Parse<JobType>(request.JobType),
+                WorkEnvironment = string.IsNullOrEmpty(request.WorkEnvironment)
+                    ? null
+                    : EnumHandler.Parse<WorkEnvironment>(request.WorkEnvironment),
                 Location = request.Location,
                 MinSalary = request.MinSalary,
                 MaxSalary = request.MaxSalary,
-                ApprovalStatus = ApprovalStatus.Draft
-            };
-
-            await _jobPostingRepository.AddAsync(newJobPosting);
-            await _jobPostingRepository.SaveChangesAsync();
-            return ToDto(newJobPosting);
-        }
-
-        public async Task<JobPostingDto> CreateAsPendingAsync(JobPostingCreateDto request)
-        {
-            var newJobPosting = new JobPosting
-            {
-                CompanyId = request.CompanyId,
-                CreatedByEmployerId = request.CreatedByEmployerId,
-                JobClassificationId = request.JobClassificationId,
-                JobSubClassificationId = request.JobSubClassificationId,
-                Title = request.Title,
-                RequirementsMarkdown = request.RequirementsMarkdown,
-                JobType = request.JobType,
-                WorkEnvironment = request.WorkEnvironment,
-                Location = request.Location,
-                MinSalary = request.MinSalary,
-                MaxSalary = request.MaxSalary,
-                ApprovalStatus = ApprovalStatus.Pending
+                ApprovalStatus = request.IsDraft
+                    ? ApprovalStatus.Draft
+                    : ApprovalStatus.Pending
             };
 
             await _jobPostingRepository.AddAsync(newJobPosting);
@@ -132,11 +176,43 @@ namespace CG.Services.Implementations
             return ToDto(jobPosting);
         }
 
-        public async Task<JobPostingDto> ApproveAsync(int id, int adminAccountUserId)
+        public async Task<JobPostingDto> MarkForApproval(int id)
         {
             var jobPosting = await GetByIdOrThrowAsync(id);
+            var currentProfile = await GetCurrentProfileAsync();
+
+            // ensure that the admin can only approve their company's job posting
+            if (jobPosting.CompanyId != currentProfile.CompanyId)
+                throw new ForbiddenException("You are not allowed to perform this operation.");
+            
+            if (jobPosting.ApprovalStatus != ApprovalStatus.Draft)
+                throw new BadRequestException("You can only mark drafted job postings for approval.");
+            
+            if (!jobPosting.IsActive)
+                throw new BadRequestException("You can only approve active job postings.");
+            
+            _jobPostingRepository.Update(jobPosting);
+            await _jobPostingRepository.SaveChangesAsync();
+            return ToDto(jobPosting);
+        }
+
+        public async Task<JobPostingDto> ApproveAsync(int id)
+        {
+            var jobPosting = await GetByIdOrThrowAsync(id);
+            var currentProfile = await GetCurrentProfileAsync();
+
+            // ensure that the admin can only approve their company's job posting
+            if (jobPosting.CompanyId != currentProfile.CompanyId)
+                throw new ForbiddenException("You are not allowed to perform this operation.");
+            
+            if (jobPosting.ApprovalStatus != ApprovalStatus.Pending)
+                throw new BadRequestException("You can only approve pending job postings.");
+
+            if (!jobPosting.IsActive)
+                throw new BadRequestException("You can only approve active job postings.");
+            
             jobPosting.ApprovalStatus = ApprovalStatus.Published;
-            jobPosting.ApprovedByAdminId = adminAccountUserId;
+            jobPosting.ApprovedByAdminId = currentProfile.UserAccountId;
             jobPosting.ApprovedAt = DateTime.Now;
 
             _jobPostingRepository.Update(jobPosting);
@@ -147,19 +223,66 @@ namespace CG.Services.Implementations
         public async Task<JobPostingDto> RejectAsync(int id)
         {
             var jobPosting = await GetByIdOrThrowAsync(id);
-            jobPosting.ApprovalStatus = ApprovalStatus.Rejected;
+            var currentProfile = await GetCurrentProfileAsync();
+
+            // ensure that the admin can only reject their company's job posting
+            if (jobPosting.CompanyId != currentProfile.CompanyId)
+                throw new ForbiddenException("You are not allowed to perform this operation.");;
+            
+            if (jobPosting.ApprovalStatus != ApprovalStatus.Pending)
+                throw new BadRequestException("You can only reject pending job postings.");
+
+            if (!jobPosting.IsActive)
+                throw new BadRequestException("You can only reject active job postings.");
+
+            jobPosting.ApprovalStatus = ApprovalStatus.Draft;
 
             _jobPostingRepository.Update(jobPosting);
             await _jobPostingRepository.SaveChangesAsync();
             return ToDto(jobPosting);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<JobPostingDto> ArchiveAsync(int id)
         {
             var jobPosting = await GetByIdOrThrowAsync(id);
+            var currentProfile = await GetCurrentProfileAsync();
 
-            _jobPostingRepository.Delete(jobPosting);
+            // ensure that the admin can only delete their company's job posting
+            if (jobPosting.CompanyId != currentProfile.CompanyId)
+                throw new ForbiddenException("You are not allowed to perform this operation.");
+
+            if (jobPosting.ApprovalStatus != ApprovalStatus.Published)
+                throw new BadRequestException("You can only archive published job postings.");
+
+            if (!jobPosting.IsActive)
+                throw new BadRequestException("You can only archive active job postings.");
+            
+            jobPosting.IsActive = false;
+            jobPosting.ApprovalStatus = ApprovalStatus.Draft;
+
+            _jobPostingRepository.Update(jobPosting);
             await _jobPostingRepository.SaveChangesAsync();
+            return ToDto(jobPosting);
+        }
+
+        public async Task<JobPostingDto> RestoreAsync(int id)
+        {
+            var jobPosting = await GetByIdOrThrowAsync(id);
+            var currentProfile = await GetCurrentProfileAsync();
+
+            // ensure that the admin can only delete their company's job posting
+            if (jobPosting.CompanyId != currentProfile.CompanyId)
+                throw new ForbiddenException("You are not allowed to perform this operation.");
+
+            if (jobPosting.IsActive)
+                throw new BadRequestException("You can only restore archived job postings.");
+
+            jobPosting.IsActive = true;
+            jobPosting.ApprovalStatus = ApprovalStatus.Draft;
+
+            _jobPostingRepository.Update(jobPosting);
+            await _jobPostingRepository.SaveChangesAsync();
+            return ToDto(jobPosting);
         }
     }
 }
