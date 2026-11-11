@@ -70,7 +70,7 @@ namespace CG.Services.Implementations
             var body = await _emailTemplateService.RenderAsync("Verified", new Dictionary<string, string>
             {
                 ["Name"] = $"{userAccount.FirstName}",
-                ["LoginLink"] = $"{_systemConfiguration.AppFrontendUrl}/auth/login"
+                ["LoginLink"] = $"{_systemConfiguration.AppFrontendUrl}/login"
             });
 
             await SendAsync(userAccount.Email, "Email Verification Success!", body);
