@@ -19,9 +19,20 @@ namespace CG.Repositories.Implementations
             return await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<Company>> GetAllAsync()
+        public async Task<IEnumerable<Company>> GetAllAsync(
+            string? search = null,
+            VerificationStatus? verificationStatus = null
+        )
         {
-            return await _context.Companies.AsNoTracking()
+            var companyQuery = _context.Companies.AsQueryable();
+
+            if (search is not null)
+                companyQuery = companyQuery.Where(x => x.Name.Contains(search));
+            
+            if (verificationStatus is not null)
+                companyQuery = companyQuery.Where(x => x.VerificationStatus == verificationStatus);
+            
+            return await companyQuery.AsNoTracking()
                 .ToListAsync();
         }
 

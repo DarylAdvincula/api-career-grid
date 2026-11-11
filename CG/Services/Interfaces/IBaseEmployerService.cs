@@ -6,5 +6,7 @@ namespace CG.Services.Interfaces
     {
         Task<EmployerProfile> GetCurrentProfileAsync();
         Task<Company> GetCurrentCompanyAsync();
+
+        Task BlockPendingOrRejectedStaff();
     }
 }

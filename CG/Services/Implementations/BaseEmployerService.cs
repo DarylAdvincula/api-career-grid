@@ -45,5 +45,19 @@ namespace CG.Services.Implementations
             
             return currentCompany;
         }
+
+        public async Task BlockPendingOrRejectedStaff()
+        {
+            var currentProfile = await GetCurrentProfileAsync();
+
+            switch (currentProfile.MembershipStatus)
+            {
+                case MembershipStatus.Pending:
+                    throw new ForbiddenException("Your join request is still under review. Please wait for the owner's approval before performing any action.");
+
+                case MembershipStatus.Rejected:
+                    throw new ForbiddenException("Your join request was rejected by the owner. You are not allowed to perform any action for this company.");
+            }
+        }
     }
 }
