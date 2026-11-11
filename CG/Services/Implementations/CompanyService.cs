@@ -6,13 +6,30 @@ using CG.Services.Interfaces;
 
 namespace CG.Services.Implementations
 {
-    public class CompanyService : ICompanyService
+    public class CompanyService : BaseService, ICompanyService
     {
         private readonly ICompanyRepository _companyRepository;
 
-        public CompanyService(ICompanyRepository companyRepository)
+        public CompanyService(
+            ICompanyRepository companyRepository,
+            IHttpContextAccessor httpContextAccessor,
+            IUserAccountRepository userAccountRepository
+        ) : base(
+            httpContextAccessor,
+            userAccountRepository
+        )
         {
             _companyRepository = companyRepository;
+        }
+
+        private async Task<Company> GetByIdOrThrowAsync(int id)
+        {
+            var company = await _companyRepository.GetByIdAsync(id);
+
+            if (company is null)
+                throw new NotFoundException($"Company with id '{id}' does not exist.");
+            
+            return company;
         }
 
         private static CompanyDto ToDto(Company company)
@@ -41,9 +58,12 @@ namespace CG.Services.Implementations
             return ToDto(company);
         }
 
-        public async Task<IEnumerable<CompanyDto>> GetAllAsync()
+        public async Task<IEnumerable<CompanyDto>> GetAllAsync(
+            string? search = null,
+            VerificationStatus? verificationStatus = null
+        )
         {
-            var companies = await _companyRepository.GetAllAsync();
+            var companies = await _companyRepository.GetAllAsync(search, verificationStatus);
             return companies.Select(ToDto);
         }
 
@@ -75,6 +95,42 @@ namespace CG.Services.Implementations
             company.WebsiteUrl = request.WebsiteUrl;
             company.LogoUrl = request.LogoUrl;
             company.VerificationStatus = request.VerificationStatus;
+
+            _companyRepository.Update(company);
+            await _companyRepository.SaveChangesAsync();
+            return ToDto(company);
+        }
+
+        public async Task<CompanyDto> ApproveAsync(int id)
+        {
+            var company = await GetByIdOrThrowAsync(id);
+
+            if (company.VerificationStatus != VerificationStatus.Pending)
+                throw new BadRequestException("You can only approve companies that are pending for approval.");
+            
+            var currentUser = await GetCurrentUserAsync();
+
+            company.VerificationStatus = VerificationStatus.Approved;
+            company.ApprovedByAdminId = currentUser.Id;
+            company.ApprovedAt = DateTime.Now;
+
+            _companyRepository.Update(company);
+            await _companyRepository.SaveChangesAsync();
+            return ToDto(company);
+        }
+
+        public async Task<CompanyDto> RejectAsync(int id)
+        {
+            var company = await GetByIdOrThrowAsync(id);
+
+            if (company.VerificationStatus != VerificationStatus.Pending)
+                throw new BadRequestException("You can only reject companies that are pending for approval.");
+            
+            var currentUser = await GetCurrentUserAsync();
+
+            company.VerificationStatus = VerificationStatus.Rejected;
+            company.ApprovedByAdminId = currentUser.Id;
+            company.ApprovedAt = DateTime.Now;
 
             _companyRepository.Update(company);
             await _companyRepository.SaveChangesAsync();

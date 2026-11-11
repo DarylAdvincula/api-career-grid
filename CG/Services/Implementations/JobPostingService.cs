@@ -103,6 +103,8 @@ namespace CG.Services.Implementations
             }
             else
             {
+                await BlockPendingOrRejectedStaff();
+                
                 var currentProfile = await GetCurrentProfileAsync();
 
                 if (
@@ -129,6 +131,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> CreateAsync(JobPostingCreateDto request)
         {
+            await BlockPendingOrRejectedStaff();
+
             var currentUser = await GetCurrentUserAsync();
             var currentCompany = await GetCurrentCompanyAsync();
             var newJobPosting = new JobPosting
@@ -160,6 +164,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> UpdateAsync(int id, JobPostingUpdateDto request)
         {
+            await BlockPendingOrRejectedStaff();
+            
             var jobPosting = await GetByIdOrThrowAsync(id);
             jobPosting.JobClassificationId = request.JobClassificationId;
             jobPosting.JobSubClassificationId = request.JobSubClassificationId;
@@ -178,6 +184,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> MarkForApproval(int id)
         {
+            await BlockPendingOrRejectedStaff();
+            
             var jobPosting = await GetByIdOrThrowAsync(id);
             var currentProfile = await GetCurrentProfileAsync();
 
@@ -198,6 +206,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> ApproveAsync(int id)
         {
+            await BlockPendingOrRejectedStaff();
+            
             var jobPosting = await GetByIdOrThrowAsync(id);
             var currentProfile = await GetCurrentProfileAsync();
 
@@ -222,6 +232,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> RejectAsync(int id)
         {
+            await BlockPendingOrRejectedStaff();
+            
             var jobPosting = await GetByIdOrThrowAsync(id);
             var currentProfile = await GetCurrentProfileAsync();
 
@@ -244,6 +256,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> ArchiveAsync(int id)
         {
+            await BlockPendingOrRejectedStaff();
+            
             var jobPosting = await GetByIdOrThrowAsync(id);
             var currentProfile = await GetCurrentProfileAsync();
 
@@ -267,6 +281,8 @@ namespace CG.Services.Implementations
 
         public async Task<JobPostingDto> RestoreAsync(int id)
         {
+            await BlockPendingOrRejectedStaff();
+            
             var jobPosting = await GetByIdOrThrowAsync(id);
             var currentProfile = await GetCurrentProfileAsync();
 

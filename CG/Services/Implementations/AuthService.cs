@@ -215,7 +215,8 @@ namespace CG.Services.Implementations
                 {
                     UserAccountId = newUserAccount.Id,
                     CompanyId = newCompany.Id,
-                    CompanyRole = CompanyRole.Owner
+                    CompanyRole = CompanyRole.Owner,
+                    MembershipStatus = MembershipStatus.Approved
                 };
 
                 await _employerProfileRepository.AddAsync(newUserProfile);
@@ -241,6 +242,18 @@ namespace CG.Services.Implementations
         {
             if (request.CompanyRole == CompanyRole.Owner.ToString())
                 throw new BadRequestException("You cannot request to join into a company as an owner.");
+
+            var company = await _companyService.GetByIdAsync(request.CompanyId);
+
+            switch (company.VerificationStatus)
+            {
+                case VerificationStatus.Pending:
+                    throw new BadRequestException($"You cannot join '{company.Name}' right now. The company is still under verification.");
+                case VerificationStatus.Rejected:
+                    throw new BadRequestException($"You would not be able to join '{company.Name}'. The company's registration request has been rejected.");
+                case VerificationStatus.Approved:
+                    break;
+            }
             
             using var transaction = await _context.Database.BeginTransactionAsync();
             

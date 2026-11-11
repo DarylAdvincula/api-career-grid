@@ -25,7 +25,10 @@ namespace CG.Services.Implementations
             IApplicantSkillService applicantSkillService,
             IApplicantSkillRepository applicantSkillRepository,
             IApplicantProfileRepository applicantProfileRepository
-        ) : base(httpContextAccessor, userAccountRepository)
+        ) : base(
+            httpContextAccessor, 
+            userAccountRepository
+        )
         {
             _appDbContext = appDbContext;
             _skillRepository = skillRepository;

@@ -53,4 +53,3 @@
                 - [/] Registration
             - [ ] Hiring Manager
                 - [/] Registration
-
