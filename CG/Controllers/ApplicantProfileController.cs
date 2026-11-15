@@ -24,7 +24,7 @@ namespace CG.Controllers
 
         [Authorize(Roles = "Applicant")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ApplicantProfileCreateDto request)
+        public async Task<IActionResult> Create([FromForm] ApplicantProfileCreateDto request)
         {
             var result = await _applicantProfileCreateValidator.ValidateAsync(request);
 

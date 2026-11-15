@@ -17,7 +17,7 @@ namespace CG.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.33")
+                .HasAnnotation("ProductVersion", "8.0.34")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -107,16 +107,10 @@ namespace CG.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<bool>("DraftStep")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSubmitted")
-                        .HasColumnType("bit");
-
                     b.Property<int>("JobPostingId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ResumeId")
+                    b.Property<int>("ResumeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("SubmittedAt")
@@ -708,7 +702,9 @@ namespace CG.Migrations
 
                     b.HasOne("CG.Models.Resume", "Resume")
                         .WithMany()
-                        .HasForeignKey("ResumeId");
+                        .HasForeignKey("ResumeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ApplicantProfile");
 

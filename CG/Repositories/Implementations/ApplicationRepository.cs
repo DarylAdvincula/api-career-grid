@@ -19,16 +19,28 @@ namespace CG.Repositories.Implementations
             return await _context.Applications.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<Application>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
+        public async Task<List<Application>> GetAllByApplicantProfileIdAsync(int applicantProfileId, ApplicationStatus? applicationStatus = null)
         {
-            return await _context.Applications.Where(x => x.ApplicantProfileId == applicantProfileId)
+            var applicationsQuery = _context.Applications.AsQueryable()
+                .Where(x => x.ApplicantProfileId == applicantProfileId);
+
+            if (applicationStatus is not null)
+                applicationsQuery = applicationsQuery.Where(x => x.ApplicationStatus == applicationStatus);
+
+            return await applicationsQuery
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Application>> GetAllAsync()
+        public async Task<List<Application>> GetAllByCompanyAndJobPostingIdAsync(int companyId, int jobPostingId)
         {
-            return await _context.Applications.AsNoTracking()
+            return await _context.Applications.Where(x =>
+            (
+                x.JobPosting.CompanyId == companyId &&
+                x.JobPostingId == jobPostingId
+            ))
+                .Include(x => x.JobPosting)
+                .AsNoTracking()
                 .ToListAsync();
         }
 

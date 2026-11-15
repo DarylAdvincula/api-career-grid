@@ -3,16 +3,37 @@ using CG.Exceptions;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace CG.Services.Implementations
 {
-    public class ApplicationService : IApplicationService
+    public class ApplicationService : BaseService, IApplicationService
     {
+        private readonly IBaseApplicantService _baseApplicantService;
+        private readonly IBaseEmployerService _baseEmployerService;
         private readonly IApplicationRepository _applicationRepository;
+        private readonly IJobPostingRepository _jobPostingRepository;
+        private readonly IResumeRepository _resumeRepository;
 
-        public ApplicationService(IApplicationRepository applicationRepository)
+        public ApplicationService(
+            IHttpContextAccessor httpContextAccessor,
+            IUserAccountRepository userAccountRepository,
+            IBaseApplicantService baseApplicantService,
+            IBaseEmployerService baseEmployerService,
+            IApplicationRepository applicationRepository,
+            IJobPostingRepository jobPostingRepository,
+            IResumeRepository resumeRepository
+        ) : base(
+            httpContextAccessor,
+            userAccountRepository
+        )
         {
+            _baseApplicantService = baseApplicantService;
+            _baseEmployerService = baseEmployerService;
             _applicationRepository = applicationRepository;
+            _jobPostingRepository = jobPostingRepository;
+            _resumeRepository = resumeRepository;
         }
 
         private async Task<Application> GetByIdOrThrowAsync(int id)
@@ -33,8 +54,6 @@ namespace CG.Services.Implementations
                 JobPostingId = application.JobPostingId,
                 ApplicantProfileId = application.ApplicantProfileId,
                 ResumeId = application.ResumeId,
-                IsSubmitted = application.IsSubmitted,
-                DraftStep = application.DraftStep,
                 CoverLetter = application.CoverLetter,
                 ApplicationStatus = application.ApplicationStatus,
                 SubmittedAt = application.SubmittedAt,
@@ -48,41 +67,128 @@ namespace CG.Services.Implementations
             return ToDto(application);
         }
 
-        public async Task<IEnumerable<ApplicationDto>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
-        {
-            var applications = await _applicationRepository.GetAllByApplicantProfileIdAsync(applicantProfileId);
-            return applications.Select(ToDto);
+        public async Task<List<ApplicationDto>> GetAllForApplicantAsync(ApplicationStatus? applicationStatus = null)
+        {   
+            var currentProfile = await _baseApplicantService.GetRequiredCurrentProfileAsync();
+            var applications = await _applicationRepository.GetAllByApplicantProfileIdAsync(currentProfile.Id, applicationStatus);
+            return applications.Select(ToDto)
+                .ToList();
         }
 
-        public async Task<IEnumerable<ApplicationDto>> GetAllAsync()
+        public async Task<List<ApplicationDto>> GetAllByJobPostingIdAsync(int jobPostingId)
         {
-            var applications = await _applicationRepository.GetAllAsync();
-            return applications.Select(ToDto);
+            var currentCompany = await _baseEmployerService.GetCurrentCompanyAsync();
+            var jobPosting = await _jobPostingRepository.GetByIdAsync(jobPostingId);
+
+            if (jobPosting is null)
+                throw new NotFoundException($"Job posting with id '{jobPostingId}' does not exist.");
+            
+            if (jobPosting.CompanyId != currentCompany.Id)
+                throw new ForbiddenException("You are not allowed to access this resource.");
+            
+            var applications = await _applicationRepository.GetAllByCompanyAndJobPostingIdAsync(currentCompany.Id, jobPostingId);
+            return applications.Select(ToDto)
+                .ToList();
         }
 
         public async Task<ApplicationDto> CreateAsync(ApplicationCreateDto request)
         {
-            var newApplication = new Application
+            try
             {
-                JobPostingId = request.JobPostingId,
-                ApplicantProfileId = request.ApplicantProfileId,
-                ResumeId = request.ResumeId,
-                IsSubmitted = request.IsSubmitted,
-                DraftStep = request.DraftStep,
-                ApplicationStatus = request.DraftStep ? ApplicationStatus.Draft : ApplicationStatus.Applied,
-                CoverLetter = request.CoverLetter
-            };
+                var currentProfile = await _baseApplicantService.GetRequiredCurrentProfileAsync();
+                var resume = await _resumeRepository.GetByIdAsync(request.ResumeId);
 
-            await _applicationRepository.AddAsync(newApplication);
+                if (resume is null)
+                    throw new NotFoundException($"Resume with id '{request.ResumeId}' does not exist.");
+
+                if (resume.ApplicantProfileId != currentProfile.Id)
+                    throw new ForbiddenException("You are not allowed to access this resource.");
+                
+                var newApplication = new Application
+                {
+                    JobPostingId = request.JobPostingId,
+                    ApplicantProfileId = currentProfile.Id,
+                    ResumeId = request.ResumeId,
+                    ApplicationStatus = request.IsDraft
+                        ? ApplicationStatus.Draft
+                        : ApplicationStatus.Applied,
+                    CoverLetter = request.CoverLetter
+                };
+
+                await _applicationRepository.AddAsync(newApplication);
+                await _applicationRepository.SaveChangesAsync();
+                return ToDto(newApplication);
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 } sql)
+            {
+                throw new ConflictException("You've already applied for this job.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<ApplicationDto> ContinueApplicationAsync(int id)
+        {
+            var currentProfile = await _baseApplicantService.GetRequiredCurrentProfileAsync();
+            var application = await GetByIdOrThrowAsync(id);
+            
+            if (application.ApplicantProfileId != currentProfile.Id)
+                throw new ForbiddenException("You are not allowed to perform this action.");
+                
+            if (application.ApplicationStatus != ApplicationStatus.Draft)
+                throw new ForbiddenException("You can only continue to apply drafted applications.");
+
+            application.ApplicationStatus = ApplicationStatus.Applied;
+
+            _applicationRepository.Update(application);
             await _applicationRepository.SaveChangesAsync();
-            return ToDto(newApplication);
+            return ToDto(application);
+        }
+
+        public async Task<ApplicationDto> UpdateStatusAsync(int id, ApplicationStatus? applicationStatus)
+        {
+            var currentCompany = await _baseEmployerService.GetCurrentCompanyAsync();
+            var application = await GetByIdOrThrowAsync(id);
+            var jobPosting = await _jobPostingRepository.GetByIdAsync(application.JobPostingId);
+
+            if (applicationStatus == ApplicationStatus.Draft)
+                throw new ForbiddenException("You are not allowed to perform this action.");
+            
+            if (applicationStatus is null)
+                throw new BadRequestException("Application status is invalid.");
+
+            if (jobPosting is null)
+                throw new NotFoundException($"Job posting with id '{application.JobPostingId}' does not exist.");
+            
+            if (jobPosting.CompanyId != currentCompany.Id)
+                throw new ForbiddenException("You are not allowed to perform this action.");
+            
+            application.ApplicationStatus = (ApplicationStatus)applicationStatus;
+
+            _applicationRepository.Update(application);
+            await _applicationRepository.SaveChangesAsync();
+            return ToDto(application);
         }
 
         public async Task<ApplicationDto> UpdateAsync(int id, ApplicationUpdateDto request)
         {
+            var currentProfile = await _baseApplicantService.GetRequiredCurrentProfileAsync();
+            var resume = await _resumeRepository.GetByIdAsync(request.ResumeId);
+            
+            if (resume is null)
+                throw new NotFoundException($"Resume with id '{request.ResumeId}' does not exist.");
+
+            if (resume.ApplicantProfileId != currentProfile.Id)
+                throw new ForbiddenException("You are not allowed to access this resource.");
+            
             var application = await GetByIdOrThrowAsync(id);
+
+            if (application.ApplicationStatus != ApplicationStatus.Draft)
+                throw new ForbiddenException("You can only edit draft applications.");
+            
             application.ResumeId = request.ResumeId;
-            application.DraftStep = request.DraftStep;
             application.CoverLetter = request.CoverLetter;
 
             await _applicationRepository.SaveChangesAsync();

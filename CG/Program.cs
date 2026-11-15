@@ -56,6 +56,7 @@ builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddScoped<IBaseService, BaseService>();
+builder.Services.AddScoped<IBaseApplicantService, BaseApplicantService>();
 builder.Services.AddScoped<IBaseEmployerService, BaseEmployerService>();
 builder.Services.AddScoped<IApplicantProfileService, ApplicantProfileService>();
 builder.Services.AddScoped<IApplicantSkillService, ApplicantSkillService>();
@@ -80,6 +81,7 @@ builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddTransient<IDbSeeder, DbSeeder>();
+builder.Services.AddScoped<ISystemSetup, SystemSetup>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
@@ -152,14 +154,9 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    await scope.ServiceProvider.GetRequiredService<IDbSeeder>()
-        .SeedAsync();
-}
+    var systemSetup = scope.ServiceProvider.GetRequiredService<ISystemSetup>();
 
-using (var scope = app.Services.CreateScope())
-{
-    scope.ServiceProvider.GetRequiredService<ISystemConfiguration>()
-        .CheckCompleteness();
+    await systemSetup.RunAsync();
 }
 
 app.Run();
