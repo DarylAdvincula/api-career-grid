@@ -27,6 +27,7 @@ namespace CG.Services.Implementations
         private readonly IEmployerProfileService _employerProfileService;
         private readonly IApplicantProfileService _applicantProfileService;
         private readonly IApplicantSkillService _applicantSkillService;
+        private readonly IResumeService _resumeService;
         private readonly IEmailService _emailService;
         private readonly IPasswordService _passwordService;
         private readonly IUserSessionService _userSessionService;
@@ -42,6 +43,7 @@ namespace CG.Services.Implementations
             IEmployerProfileService employerProfileService,
             IApplicantProfileService applicantProfileService,
             IApplicantSkillService applicantSkillService,
+            IResumeService resumeService,
             IEmailService emailService,
             IPasswordService passwordService,
             IUserSessionService userSessionService
@@ -58,6 +60,7 @@ namespace CG.Services.Implementations
             _employerProfileService = employerProfileService;
             _applicantProfileService = applicantProfileService;
             _applicantSkillService = applicantSkillService;
+            _resumeService = resumeService;
             _emailService = emailService;
             _passwordService = passwordService;
             _userSessionService = userSessionService;
@@ -156,7 +159,10 @@ namespace CG.Services.Implementations
                 var applicantProfile = await _applicantProfileService.GetByUserAccountIdAsync(currentUser.Id);
 
                 if (applicantProfile is not null)
+                {
                     applicantProfile.Skills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(applicantProfile.Id);
+                    applicantProfile.Resumes = await _resumeService.GetAllByApplicantProfileIdAsync(applicantProfile.Id);
+                }
 
                 return new ApplicantDto
                 {

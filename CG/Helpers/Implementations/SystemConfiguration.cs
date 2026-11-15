@@ -35,6 +35,7 @@ namespace CG.Helpers.Implementations
         public string GmailAddress => GetValue<string>("Gmail:Username", "Mailing");
         public string GmailAppPassword => GetValue<string>("Gmail:AppPassword", "Mailing");
         public string GmailAppName => GetValue<string>("Gmail:AppName", "Mailing");
+        public string UploadsResumes => GetValue<string>("Uploads:Resumes", "Uploads");
 
         public void CheckCompleteness()
         {
@@ -52,6 +53,12 @@ namespace CG.Helpers.Implementations
             var gmailAddress = GmailAddress;
             var gmailAppPassword = GmailAppPassword;
             var gmailAppName = GmailAppName;
+            var uploadsResumes = UploadsResumes;
+        }
+
+        public void SetupDirectories()
+        {
+            
         }
     }
 }

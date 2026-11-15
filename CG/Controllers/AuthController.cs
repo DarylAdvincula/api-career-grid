@@ -108,7 +108,7 @@ namespace CG.Controllers
         }
 
         [HttpGet("verify/email")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] string? code)
+        public async Task<IActionResult> VerifyEmail([FromQuery] string code)
         {
             Response.Headers["Cache-Control"] = "no-store";
             var verified = false;

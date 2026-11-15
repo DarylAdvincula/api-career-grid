@@ -289,11 +289,16 @@ namespace CG.DAL
                     e.ApplicantProfileId
                 })
                 .IsUnique();
-
             modelBuilder.Entity<Application>()
                 .HasIndex(e => e.JobPostingId);
             modelBuilder.Entity<Application>()
                 .HasIndex(e => e.ApplicantProfileId);
+
+            modelBuilder.Entity<Application>()
+                .HasOne(e => e.Resume)
+                .WithMany()
+                .HasForeignKey(e => e.ResumeId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             modelBuilder.Entity<ApplicationStatusLog>()
                 .HasOne(e => e.ChangedByUser)

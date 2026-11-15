@@ -3,6 +3,7 @@ namespace CG.Helpers.Interfaces
     public interface ISystemConfiguration
     {
         void CheckCompleteness();
+        void SetupDirectories();
         public T GetValue<T>(string key, string feature);
         public string AdminFirstName { get; }
         public string AdminLastName { get; }
@@ -18,5 +19,6 @@ namespace CG.Helpers.Interfaces
         public string GmailAddress { get; }
         public string GmailAppPassword { get; }
         public string GmailAppName { get; }
+        public string UploadsResumes { get; }
     }
 }

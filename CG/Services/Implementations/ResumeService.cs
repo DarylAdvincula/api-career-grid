@@ -9,22 +9,28 @@ using CG.Services.Interfaces;
 
 namespace CG.Services.Implementations
 {
-    public class ResumeService : IResumeService
+    public class ResumeService : BaseApplicantService, IResumeService
     {
+        private readonly ISystemConfiguration _systemConfiguration;
         private readonly AppDbContext _context;
         private readonly IResumeRepository _resumeRepository;
-        private readonly string _uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Resumes");
 
         public ResumeService(
+            ISystemConfiguration systemConfigurtion,
+            IHttpContextAccessor httpContextAccessor,
+            IUserAccountRepository userAccountRepository,
+            IApplicantProfileRepository applicantProfileRepository,
             AppDbContext context,
             IResumeRepository resumeRepository
+        ) : base(
+            httpContextAccessor,
+            userAccountRepository,
+            applicantProfileRepository
         )
         {
+            _systemConfiguration = systemConfigurtion;
             _context = context;
             _resumeRepository = resumeRepository;
-
-            if (!Directory.Exists(_uploadFolder))
-                Directory.CreateDirectory(_uploadFolder);
         }
 
         private async Task<Resume> GetByIdOrThrowAsync(int id)
@@ -60,16 +66,18 @@ namespace CG.Services.Implementations
             return ToDto(resume);
         }
 
-        public async Task<IEnumerable<ResumeDto>> GetAllByApplicantProfileIdAsync(int id)
+        public async Task<List<ResumeDto>> GetAllByApplicantProfileIdAsync(int id)
         {
             var resumes = await _resumeRepository.GetAllByApplicantProfileIdAsync(id);
-            return resumes.Select(ToDto);
+            return resumes.Select(ToDto)
+                .ToList();
         }
 
-        public async Task<IEnumerable<ResumeDto>> GetAllAsync()
+        public async Task<List<ResumeDto>> GetAllAsync()
         {
             var resumes = await _resumeRepository.GetAllAsync();
-            return resumes.Select(ToDto);
+            return resumes.Select(ToDto)
+                .ToList();
         }
 
         public async Task<ResumeDto> CreateAsync(ResumeCreateDto request)
@@ -78,25 +86,26 @@ namespace CG.Services.Implementations
            
             try
             {
-                var uploadFileValidator = new UploadFileValidator(request.ResumeFile);
+                var uploadFileValidator = new UploadFileValidator<Resume>(request.ResumeFile);
 
                 uploadFileValidator.EnsureValidOrThow();
 
                 var uploadFileMetadataExtractor = new UploadFileMetadataExtractor(request.ResumeFile);
 
                 using var stream = new FileStream(
-                    uploadFileMetadataExtractor.GetFilePath(_uploadFolder),
+                    uploadFileMetadataExtractor.GetFilePath(_systemConfiguration.UploadsResumes),
                     FileMode.Create
                 );
 
                 await request.ResumeFile.CopyToAsync(stream);
 
+                var currentProfile = await GetRequiredCurrentProfileAsync();
                 var newResume = new Resume
                 {
-                    ApplicantProfileId = request.ApplicantProfileId,
+                    ApplicantProfileId = currentProfile.Id,
                     OriginalFileName = uploadFileMetadataExtractor.GetFileName(),
                     StoredFileName = uploadFileMetadataExtractor.GetUniqueFileName(),
-                    FilePath = uploadFileMetadataExtractor.GetFilePath(_uploadFolder),
+                    FilePath = uploadFileMetadataExtractor.GetFilePath(_systemConfiguration.UploadsResumes),
                     FileExtension = uploadFileMetadataExtractor.GetExtension(),
                     ContentType = uploadFileMetadataExtractor.GetContentType(),
                     FileSizeInBytes = uploadFileMetadataExtractor.GetSizeInBytes(),
@@ -105,8 +114,8 @@ namespace CG.Services.Implementations
 
                 if (request.IsPrimary)
                 {
-                    var primaryResume = await _resumeRepository.GetPrimaryByApplicantProfileId(request.ApplicantProfileId);
-
+                    var primaryResume = await _resumeRepository.GetPrimaryByApplicantProfileId(currentProfile.Id);
+                    
                     if (primaryResume is not null)
                     {
                         primaryResume.IsPrimary = false;
@@ -135,24 +144,29 @@ namespace CG.Services.Implementations
             try
             {
                 var resume = await GetByIdOrThrowAsync(id);
+                var currentProfile = await GetRequiredCurrentProfileAsync();
+
+                // ensure that every applicant can only update their own resume
+                if (resume.ApplicantProfileId != currentProfile.Id)
+                    throw new ForbiddenException("You are not allowed to perform this action.");
                 
                 if (File.Exists(resume.FilePath))
                     File.Delete(resume.FilePath);
 
-                var uploadFileValidator = new UploadFileValidator(request.ResumeFile);
+                var uploadFileValidator = new UploadFileValidator<Resume>(request.ResumeFile);
 
                 uploadFileValidator.EnsureValidOrThow();
 
                 var uploadFileMetadataExtractor = new UploadFileMetadataExtractor(request.ResumeFile);
 
                 using var stream = new FileStream(
-                    uploadFileMetadataExtractor.GetFilePath(_uploadFolder),
+                    uploadFileMetadataExtractor.GetFilePath(_systemConfiguration.UploadsResumes),
                     FileMode.Create
                 );
 
                 resume.OriginalFileName = uploadFileMetadataExtractor.GetFileName();
                 resume.StoredFileName = uploadFileMetadataExtractor.GetUniqueFileName();
-                resume.FilePath = uploadFileMetadataExtractor.GetFilePath(_uploadFolder);
+                resume.FilePath = uploadFileMetadataExtractor.GetFilePath(_systemConfiguration.UploadsResumes);
                 resume.FileExtension = uploadFileMetadataExtractor.GetExtension();
                 resume.ContentType = uploadFileMetadataExtractor.GetContentType();
                 resume.FileSizeInBytes = uploadFileMetadataExtractor.GetSizeInBytes();

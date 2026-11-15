@@ -3,7 +3,7 @@ using CG.Helpers.Interfaces;
 
 namespace CG.Helpers.Implementations
 {
-    public class UploadFileValidator : IUploadFileValidator
+    public class UploadFileValidator<ModelType> : IUploadFileValidator<ModelType>
     {
         private readonly IUploadFileMetadataExtractor _uploadFileMetadataExtractor;
         private readonly IFormFile _file;
@@ -39,11 +39,11 @@ namespace CG.Helpers.Implementations
         public void EnsureValidOrThow()
         {
             if (_file is null || _file.Length == 0)
-                throw new BadRequestException("No resume uploaded.");
+                throw new BadRequestException($"No {nameof(ModelType)} uploaded.");
             else if (!IsContentTypeValid())
-                throw new BadRequestException($"The uploaded file's format is not supported.");
+                throw new BadRequestException($"The uploaded file's format is not supported ({_file.FileName}).");
             else if (!IsSizeValid())
-                throw new BadRequestException($"File size should not exceed {_uploadFileMetadataExtractor.GetSizeInBytes():F2} Mb.");
+                throw new BadRequestException($"The uploaded file size exceeds {_uploadFileMetadataExtractor.GetSizeInBytes():F2} Mb ({_file.FileName}).");
         }
     }
 }

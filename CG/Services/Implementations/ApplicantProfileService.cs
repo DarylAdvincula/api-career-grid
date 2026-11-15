@@ -1,40 +1,52 @@
 using CG.DAL;
 using CG.DTO.ApplicantProfile;
 using CG.DTO.ApplicantSkill;
+using CG.DTO.Resume;
 using CG.Exceptions;
 using CG.Helpers.Implementations;
+using CG.Helpers.Interfaces;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
 
 namespace CG.Services.Implementations
 {
-    public class ApplicantProfileService : BaseService, IApplicantProfileService
+    public class ApplicantProfileService : BaseApplicantService, IApplicantProfileService
     {
+        private readonly ISystemConfiguration _systemConfiguration;
         private readonly AppDbContext _appDbContext;
         private readonly ISkillRepository _skillRepository;
         private readonly IApplicantSkillService _applicantSkillService;
         private readonly IApplicantSkillRepository _applicantSkillRepository;
         private readonly IApplicantProfileRepository _applicantProfileRepository;
+        private readonly IResumeRepository _resumeRepository;
+        private readonly IResumeService _resumeService;
         
         public ApplicantProfileService(
+            ISystemConfiguration systemConfiguration,
             AppDbContext appDbContext,
             IHttpContextAccessor httpContextAccessor,
             IUserAccountRepository userAccountRepository,
             ISkillRepository skillRepository,
             IApplicantSkillService applicantSkillService,
             IApplicantSkillRepository applicantSkillRepository,
-            IApplicantProfileRepository applicantProfileRepository
+            IApplicantProfileRepository applicantProfileRepository,
+            IResumeRepository resumeRepository,
+            IResumeService resumeService
         ) : base(
             httpContextAccessor, 
-            userAccountRepository
+            userAccountRepository,
+            applicantProfileRepository
         )
         {
+            _systemConfiguration = systemConfiguration;
             _appDbContext = appDbContext;
             _skillRepository = skillRepository;
             _applicantSkillService = applicantSkillService;
             _applicantSkillRepository = applicantSkillRepository;
             _applicantProfileRepository = applicantProfileRepository;
+            _resumeRepository = resumeRepository;
+            _resumeService = resumeService;
         }
 
         private async Task<ApplicantProfile> GetByIdOrThrowAsync(int id)
@@ -49,7 +61,8 @@ namespace CG.Services.Implementations
 
         private static ApplicantProfileDto ToDto(
             ApplicantProfile applicantProfile, 
-            List<ApplicantSkillDto>? applicantSkillsDto = null
+            List<ApplicantSkillDto>? applicantSkillsDto = null,
+            List<ResumeDto>? resumesDto = null
         )
         {
             return new ApplicantProfileDto
@@ -60,7 +73,8 @@ namespace CG.Services.Implementations
                 HomeLocation = applicantProfile.HomeLocation,
                 Bio = applicantProfile.Bio,
                 CreatedAt = applicantProfile.CreatedAt,
-                Skills = applicantSkillsDto ?? []
+                Skills = applicantSkillsDto ?? [],
+                Resumes = resumesDto ?? []
             };
         }
 
@@ -111,9 +125,6 @@ namespace CG.Services.Implementations
 
                     if (skill.SkillId is null)
                     {
-                        var jobClassification = new JobClassification();
-                        var jobSubClassification = new JobSubClassification();
-                        
                         var newSkill = new Skill
                         {
                             JobClassificationId = skill?.Skill?.JobClassificationId,
@@ -143,13 +154,61 @@ namespace CG.Services.Implementations
                     }
                     
                     await _applicantSkillRepository.AddAsync(newApplicantSkill);
-                    await _applicantSkillRepository.SaveChangesAsync();
                 }
 
+                await _applicantSkillRepository.SaveChangesAsync();
+                
+                var resumeCount = request.Resumes.Count;
+                var primaryResumeCount = request.Resumes.Count(x => x.IsPrimary);
+
+                if (resumeCount == 0)
+                    throw new BadRequestException("Please upload at least one resume.");
+
+                // ensure that the applicant has always a primary resume
+                if (primaryResumeCount == 0)
+                {
+                    if (resumeCount == 1)
+                        request.Resumes[0].IsPrimary = true;
+                    else
+                        throw new BadRequestException("Please set at least one primary resume.");
+                }
+
+                foreach (var resume in request.Resumes)
+                {
+                    var uploadFileValidator = new UploadFileValidator<Resume>(resume.ResumeFile);
+
+                    uploadFileValidator.EnsureValidOrThow();
+
+                    var uploadFileMetadataExtractor = new UploadFileMetadataExtractor(resume.ResumeFile);
+
+                    using var stream = new FileStream(
+                        uploadFileMetadataExtractor.GetFilePath(_systemConfiguration.UploadsResumes),
+                        FileMode.Create
+                    );
+
+                    await resume.ResumeFile.CopyToAsync(stream);
+
+                    var newResume = new Resume
+                    {
+                        ApplicantProfileId = newProfile.Id,
+                        OriginalFileName = uploadFileMetadataExtractor.GetFileName(),
+                        StoredFileName = uploadFileMetadataExtractor.GetUniqueFileName(),
+                        FilePath = uploadFileMetadataExtractor.GetFilePath(_systemConfiguration.UploadsResumes),
+                        FileExtension = uploadFileMetadataExtractor.GetExtension(),
+                        ContentType = uploadFileMetadataExtractor.GetContentType(),
+                        FileSizeInBytes = uploadFileMetadataExtractor.GetSizeInBytes(),
+                        IsPrimary = resume.IsPrimary
+                    };
+
+                    await _resumeRepository.AddAsync(newResume);
+                }
+
+                await _resumeRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 var applicantSkills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(newProfile.Id);
-                return ToDto(newProfile, applicantSkills);
+                var resumes = await  _resumeService.GetAllByApplicantProfileIdAsync(newProfile.Id);
+                return ToDto(newProfile, applicantSkills, resumes);
             }
             catch (Exception)
             {
@@ -163,7 +222,7 @@ namespace CG.Services.Implementations
             var existingProfile = await _applicantProfileRepository.GetByIdAsync(id);
 
             if (existingProfile is null)
-                throw new BadRequestException("You do not have a profile yet.");
+                throw new BadRequestException("You haven't created your profile yet. Please create it first.");
             
             existingProfile.Headline = request.Headline;
             existingProfile.HomeLocation = request.HomeLocation;

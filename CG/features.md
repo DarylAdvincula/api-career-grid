@@ -1,0 +1,54 @@
+- [ ] Resume Management
+    - [ ] Read
+        - [ ] Controller
+            - [ ] ResumeController.Index()
+        - [ ] Service
+            - [ ] ResumeService.GetAllByCompanyIdAsync()
+            - [ ] ResumeService.GetAllAsync()
+    - [ ] Create
+        - [ ] Controller
+            - [/] ApplicantProfileController.Create()
+                - [ ] Validation
+            - [/] ResumeController.Create()
+                - [ ] Validation
+        - [/] Service
+            - [/] ResumeService.CreateAsync()
+    - [ ] Update
+        - [ ] Controller
+            - [ ] ResumeController.Update()
+                - [ ] Validation
+        - [ ] Service
+            - [ ] ResumeService.UpdateAsync()
+    - [ ] Delete
+        - [ ] Controller
+            - [ ] ResumeController.Delete()
+        - [ ] Service
+            - [ ] ResumeService.DeleteAsync()
+
+- [ ] Application Management
+    - [/] Read
+        - [/] Controller
+            - [/] ApplicationController.Find()
+            - [/] ApplicationController.Index()
+            - [/] ApplicationController.GetAllForApplicant()
+        - [/] Service
+            - [/] ApplicationService.GetByIdAsync()
+            - [/] ApplicationService.GetAllByJobPostingIdAsync()
+            - [/] ApplicationService.GetAllForApplicant()
+    - [ ] Create
+        - [ ] Controller
+            - [/] ApplicationController.Create()
+                - [ ] Validation
+        - [ ] Service
+            - [/] ApplicationService.CreateAsync()
+    - [ ] Update
+        - [ ] Controller
+            - [/] ApplicationController.ContinueApplication()
+            - [/] ApplicationController.UpdateStatus()
+            - [/] ApplicationController.Update()
+                - [ ] Validation
+        - [/] Service
+            - [/] ApplicationService.ContinueApplicationAsync()
+            - [/] ApplicationService.UpdateStatusAsync()
+            - [/] ApplicationService.Update()
+

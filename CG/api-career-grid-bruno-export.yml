@@ -21,6 +21,63 @@ config:
           value: kyledaryladvincula2004
 items:
   - info:
+      name: company
+      type: folder
+      seq: 4
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: approve
+          type: http
+          seq: 2
+        http:
+          method: PATCH
+          url: '{{base_url}}/company/approve/:id'
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: index
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: '{{base_url}}/company'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: reject
+          type: http
+          seq: 3
+        http:
+          method: PATCH
+          url: '{{base_url}}/company/reject/:id'
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+  - info:
       name: auth
       type: folder
       seq: 1
@@ -326,63 +383,6 @@ items:
               maxRedirects: 5
               forwardAuthorizationHeader: false
   - info:
-      name: company
-      type: folder
-      seq: 4
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: approve
-          type: http
-          seq: 2
-        http:
-          method: PATCH
-          url: '{{base_url}}/company/approve/:id'
-          params:
-            - name: id
-              value: '1'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: index
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: '{{base_url}}/company'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: reject
-          type: http
-          seq: 3
-        http:
-          method: PATCH
-          url: '{{base_url}}/company/reject/:id'
-          params:
-            - name: id
-              value: '1'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-  - info:
       name: job-posting
       type: folder
       seq: 3
@@ -398,7 +398,7 @@ items:
           url: '{{base_url}}/job-posting/approve/:id'
           params:
             - name: id
-              value: '3'
+              value: '1'
               type: path
           auth: inherit
         settings:
@@ -586,25 +586,42 @@ items:
               method: POST
               url: '{{base_url}}/profile/applicant'
               body:
-                type: json
-                data: |-
-                  {
-                    "headline": "",
-                    "homeLocation": "Dimakita Street, Tinago City, Surigone del None-te",
-                    "bio": "string",
-                    "skills": [
-                      {
-                        "skillId": null,
-                        "yearsOfExperience": 2,
-                        "proficiencyLevel": "Intermediate",
-                        "skill": {
-                          "jobClassificationId": null,
-                          "jobSubClassificationId": null,
-                          "name": "ASP.NET Core Web API Development"
-                        }
-                      }
-                    ]
-                  }
+                type: multipart-form
+                data:
+                  - name: headline
+                    type: text
+                    value: Test Headline
+                  - name: homeLocation
+                    type: text
+                    value: Test Home Location
+                  - name: bio
+                    type: text
+                    value: Test Bio
+                  - name: resumes[0].resumeFile
+                    type: file
+                    value:
+                      - C:\Users\kyled\Personal\career\hiring\Kyle_Daryl_Advincula_CV.pdf
+                  - name: resumes[0].isPrimary
+                    type: text
+                    value: 'true'
+                  - name: skills[0].skillId
+                    type: text
+                    value: ''
+                  - name: skills[0].yearsOfExperience
+                    type: text
+                    value: '2'
+                  - name: skills[0].proficiencyLevel
+                    type: text
+                    value: Intermediate
+                  - name: skills[0].skill.jobClassificationId
+                    type: text
+                    value: ''
+                  - name: skills[0].skill.jobSubClassificationId
+                    type: text
+                    value: ''
+                  - name: skills[0].skill.name
+                    type: text
+                    value: ASP.NET Core Web API Development
               auth: inherit
             settings:
               encodeUrl: true
@@ -628,7 +645,7 @@ items:
           url: '{{base_url}}/staff/approve/:id'
           params:
             - name: id
-              value: '3'
+              value: '8'
               type: path
           auth: inherit
         settings:
@@ -669,11 +686,122 @@ items:
           followRedirects: true
           maxRedirects: 5
           forwardAuthorizationHeader: false
+  - info:
+      name: application
+      type: folder
+      seq: 6
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: create
+          type: http
+          seq: 3
+        http:
+          method: POST
+          url: '{{base_url}}/application'
+          body:
+            type: json
+            data: |-
+              {
+                "jobPostingId": 1,
+                "resumeId": 5,
+                "isDraft": true,
+                "coverLetter": "Test cover letter"
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update
+          type: http
+          seq: 5
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/1'
+          body:
+            type: json
+            data: |-
+              {
+                "resumeId": 5,
+                "coverLetter": "Test Cover Letter (edited)"
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: continue
+          type: http
+          seq: 4
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/continue/1'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update-status
+          type: http
+          seq: 6
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/update-status/1?ApplicationStatus=Screening'
+          params:
+            - name: ApplicationStatus
+              value: Screening
+              type: query
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: find
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: '{{base_url}}/application/1'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: job-posting
+          type: http
+          seq: 2
+        http:
+          method: GET
+          url: '{{base_url}}/application/job-posting/1'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
 bundled: true
 extensions:
   bruno:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-11-11T06:03:03.679Z'
+    exportedAt: '2026-11-15T05:39:41.610Z'
     exportedUsing: Bruno
