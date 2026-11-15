@@ -55,10 +55,5 @@ namespace CG.Helpers.Implementations
             var gmailAppName = GmailAppName;
             var uploadsResumes = UploadsResumes;
         }
-
-        public void SetupDirectories()
-        {
-            
-        }
     }
 }
