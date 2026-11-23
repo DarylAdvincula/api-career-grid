@@ -218,9 +218,10 @@ namespace CG.Services.Implementations
             }
         }
 
-        public async Task<ApplicantProfileDto> UpdateAsync(int id, ApplicantProfileUpdateDto request)
+        public async Task<ApplicantProfileDto> UpdateAsync(ApplicantProfileUpdateDto request)
         {
-            var existingProfile = await _applicantProfileRepository.GetByIdAsync(id);
+            var currentProfile = await GetRequiredCurrentProfileAsync();
+            var existingProfile = await _applicantProfileRepository.GetByIdAsync(currentProfile.Id);
 
             if (existingProfile is null)
                 throw new BadRequestException("You haven't created your profile yet. Please create it first.");
@@ -237,7 +238,7 @@ namespace CG.Services.Implementations
 
             _applicantProfileRepository.Update(existingProfile);
             await _applicantProfileRepository.SaveChangesAsync();
-            return await GetByIdAsync(id);
+            return await GetByIdAsync(currentProfile.Id);
         }
 
         public async Task DeleteAsync(int id)

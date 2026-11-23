@@ -10,10 +10,7 @@ namespace CG.Services.Interfaces
         
         Task<ApplicantProfileDto> CreateAsync(ApplicantProfileCreateDto request);
 
-        Task<ApplicantProfileDto> UpdateAsync(
-            int id, 
-            ApplicantProfileUpdateDto request
-        );
+        Task<ApplicantProfileDto> UpdateAsync(ApplicantProfileUpdateDto request);
 
         Task DeleteAsync(int id);
     }
