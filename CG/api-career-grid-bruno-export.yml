@@ -21,117 +21,6 @@ config:
           value: kyledaryladvincula2004
 items:
   - info:
-      name: application
-      type: folder
-      seq: 6
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: continue
-          type: http
-          seq: 4
-        http:
-          method: PATCH
-          url: '{{base_url}}/application/continue/1'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: create
-          type: http
-          seq: 3
-        http:
-          method: POST
-          url: '{{base_url}}/application'
-          body:
-            type: json
-            data: |-
-              {
-                "jobPostingId": 1,
-                "resumeId": 5,
-                "isDraft": true,
-                "coverLetter": "Test cover letter"
-              }
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: find
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: '{{base_url}}/application/1'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: job-posting
-          type: http
-          seq: 2
-        http:
-          method: GET
-          url: '{{base_url}}/application/job-posting/1'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: update-status
-          type: http
-          seq: 6
-        http:
-          method: PATCH
-          url: '{{base_url}}/application/update-status/1?ApplicationStatus=Screening'
-          params:
-            - name: ApplicationStatus
-              value: Screening
-              type: query
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: update
-          type: http
-          seq: 5
-        http:
-          method: PATCH
-          url: '{{base_url}}/application/1'
-          body:
-            type: json
-            data: |-
-              {
-                "resumeId": 5,
-                "coverLetter": "Test Cover Letter (edited)"
-              }
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-  - info:
       name: auth
       type: folder
       seq: 1
@@ -437,188 +326,6 @@ items:
               maxRedirects: 5
               forwardAuthorizationHeader: false
   - info:
-      name: job-posting
-      type: folder
-      seq: 3
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: approve
-          type: http
-          seq: 4
-        http:
-          method: PATCH
-          url: '{{base_url}}/job-posting/approve/:id'
-          params:
-            - name: id
-              value: '1'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: archive
-          type: http
-          seq: 6
-        http:
-          method: DELETE
-          url: '{{base_url}}/job-posting/archive/:id'
-          params:
-            - name: id
-              value: '3'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: create-as-draft
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: '{{base_url}}/job-posting'
-          body:
-            type: json
-            data: |-
-              {
-                "jobClassificationId": null,
-                "jobSubClassificationId": null,
-                "title": "Administrator",
-                "requirementsMarkdown": "1. Requirment 1\n2. Requirement 2",
-                "jobType": "Full_Time",
-                "workEnvironment": "Remote",
-                "location": "CareerGrid Headquarters, Makati City",
-                "minSalary": 20000,
-                "maxSalary": 20000,
-                "isDraft": true
-              }
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: create-as-pending
-          type: http
-          seq: 3
-        http:
-          method: POST
-          url: '{{base_url}}/job-posting'
-          body:
-            type: json
-            data: |-
-              {
-                "jobClassificationId": null,
-                "jobSubClassificationId": null,
-                "title": "Administrator",
-                "requirementsMarkdown": "1. Requirment 1\n2. Requirement 2",
-                "jobType": "Full_Time",
-                "workEnvironment": "Remote",
-                "location": "CareerGrid Headquarters, Makati City",
-                "minSalary": 20000,
-                "maxSalary": 20000,
-                "isDraft": false
-              }
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: index
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: '{{base_url}}/job-posting'
-          params:
-            - name: approvalStatus
-              value: Pending
-              type: query
-              disabled: true
-            - name: search
-              value: Admin
-              type: query
-              disabled: true
-            - name: active
-              value: 'false'
-              type: query
-              disabled: true
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: mark-for-approval
-          type: http
-          seq: 8
-        http:
-          method: PATCH
-          url: '{{base_url}}/job-posting/mark-for-approval/:id'
-          params:
-            - name: id
-              value: '2'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: reject
-          type: http
-          seq: 5
-        http:
-          method: PATCH
-          url: '{{base_url}}/job-posting/reject/:id'
-          params:
-            - name: id
-              value: '2'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: restore
-          type: http
-          seq: 7
-        http:
-          method: PATCH
-          url: '{{base_url}}/job-posting/restore/:id'
-          params:
-            - name: id
-              value: '2'
-              type: path
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-  - info:
       name: company
       type: folder
       seq: 4
@@ -676,30 +383,42 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
   - info:
-      name: resume
+      name: application
       type: folder
-      seq: 7
+      seq: 6
     request:
       auth: inherit
     items:
+      - info:
+          name: continue
+          type: http
+          seq: 3
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/continue/1'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
       - info:
           name: create
           type: http
           seq: 2
         http:
           method: POST
-          url: '{{base_url}}/resume'
+          url: '{{base_url}}/application'
           body:
-            type: multipart-form
-            data:
-              - name: resumeFile
-                type: file
-                value:
-                  - C:\Users\kbadvincula\Downloads\G_TRACS_rev_CAMU 092524_AJP_CAMU_MMD v3 1.pdf
-                contentType: application/pdf
-              - name: isPrimary
-                type: text
-                value: 'true'
+            type: json
+            data: |-
+              {
+                "jobPostingId": 1,
+                "resumeId": 5,
+                "isDraft": true,
+                "coverLetter": "Test cover letter"
+              }
           auth: inherit
         settings:
           encodeUrl: true
@@ -708,26 +427,51 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
       - info:
-          name: delete
-          type: http
-          seq: 3
-        http:
-          method: DELETE
-          url: '{{base_url}}/resume/2'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: index
+          name: job-posting
           type: http
           seq: 1
         http:
           method: GET
-          url: '{{base_url}}/resume'
+          url: '{{base_url}}/application/job-posting/1'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update-status
+          type: http
+          seq: 5
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/update-status/1?ApplicationStatus=Screening'
+          params:
+            - name: ApplicationStatus
+              value: Screening
+              type: query
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update
+          type: http
+          seq: 4
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/1'
+          body:
+            type: json
+            data: |-
+              {
+                "resumeId": 5,
+                "coverLetter": "Test Cover Letter (edited)"
+              }
           auth: inherit
         settings:
           encodeUrl: true
@@ -736,22 +480,22 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
   - info:
-      name: staff
+      name: job-posting
       type: folder
-      seq: 5
+      seq: 3
     request:
       auth: inherit
     items:
       - info:
           name: approve
           type: http
-          seq: 2
+          seq: 5
         http:
           method: PATCH
-          url: '{{base_url}}/staff/approve/:id'
+          url: '{{base_url}}/job-posting/approve/:id'
           params:
             - name: id
-              value: '6'
+              value: '1'
               type: path
           auth: inherit
         settings:
@@ -761,12 +505,115 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
       - info:
+          name: archive
+          type: http
+          seq: 7
+        http:
+          method: DELETE
+          url: '{{base_url}}/job-posting/archive/:id'
+          params:
+            - name: id
+              value: '3'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: create-as-draft
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: '{{base_url}}/job-posting'
+          body:
+            type: json
+            data: |-
+              {
+                "title": "Administrator",
+                "requirementsMarkdown": "1. Requirment 1\n2. Requirement 2",
+                "jobType": "Full_Time",
+                "workEnvironment": "Remote",
+                "location": "CareerGrid Headquarters, Makati City",
+                "minSalary": 20000,
+                "maxSalary": 20000,
+                "isDraft": true
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: create-as-pending
+          type: http
+          seq: 3
+        http:
+          method: POST
+          url: '{{base_url}}/job-posting'
+          body:
+            type: json
+            data: |-
+              {
+                "title": "Administrator",
+                "requirementsMarkdown": "1. Requirment 1\n2. Requirement 2",
+                "jobType": "Full_Time",
+                "workEnvironment": "Remote",
+                "location": "CareerGrid Headquarters, Makati City",
+                "minSalary": 20000,
+                "maxSalary": 20000,
+                "isDraft": false
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
           name: index
           type: http
           seq: 1
         http:
           method: GET
-          url: '{{base_url}}/staff'
+          url: '{{base_url}}/job-posting'
+          params:
+            - name: approvalStatus
+              value: Pending
+              type: query
+              disabled: true
+            - name: search
+              value: Admin
+              type: query
+              disabled: true
+            - name: active
+              value: 'false'
+              type: query
+              disabled: true
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: mark-for-approval
+          type: http
+          seq: 9
+        http:
+          method: PATCH
+          url: '{{base_url}}/job-posting/mark-for-approval/:id'
+          params:
+            - name: id
+              value: '2'
+              type: path
           auth: inherit
         settings:
           encodeUrl: true
@@ -777,14 +624,59 @@ items:
       - info:
           name: reject
           type: http
-          seq: 3
+          seq: 6
         http:
           method: PATCH
-          url: '{{base_url}}/staff/reject/:id'
+          url: '{{base_url}}/job-posting/reject/:id'
           params:
             - name: id
-              value: '4'
+              value: '2'
               type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: restore
+          type: http
+          seq: 8
+        http:
+          method: PATCH
+          url: '{{base_url}}/job-posting/restore/:id'
+          params:
+            - name: id
+              value: '2'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update
+          type: http
+          seq: 4
+        http:
+          method: PATCH
+          url: '{{base_url}}/job-posting/2'
+          body:
+            type: json
+            data: |-
+              {
+                "title": "Administrator - Edited",
+                "requirementsMarkdown": "1. Requirment 1\n2. Requirement 2",
+                "jobType": "Full_Time",
+                "workEnvironment": "Remote",
+                "location": "CareerGrid Headquarters, Makati City",
+                "minSalary": 20000,
+                "maxSalary": 30000,
+                "isDraft": true
+              }
           auth: inherit
         settings:
           encodeUrl: true
@@ -869,6 +761,66 @@ items:
               maxRedirects: 5
               forwardAuthorizationHeader: false
   - info:
+      name: resume
+      type: folder
+      seq: 7
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: create
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: '{{base_url}}/resume'
+          body:
+            type: multipart-form
+            data:
+              - name: resumeFile
+                type: file
+                value:
+                  - C:\Users\kbadvincula\Downloads\G_TRACS_rev_CAMU 092524_AJP_CAMU_MMD v3 1.pdf
+                contentType: application/pdf
+              - name: isPrimary
+                type: text
+                value: 'true'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: delete
+          type: http
+          seq: 3
+        http:
+          method: DELETE
+          url: '{{base_url}}/resume/2'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: index
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: '{{base_url}}/resume'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+  - info:
       name: skill
       type: folder
       seq: 8
@@ -893,11 +845,68 @@ items:
           followRedirects: true
           maxRedirects: 5
           forwardAuthorizationHeader: false
+  - info:
+      name: staff
+      type: folder
+      seq: 5
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: approve
+          type: http
+          seq: 2
+        http:
+          method: PATCH
+          url: '{{base_url}}/staff/approve/:id'
+          params:
+            - name: id
+              value: '6'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: index
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: '{{base_url}}/staff'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: reject
+          type: http
+          seq: 3
+        http:
+          method: PATCH
+          url: '{{base_url}}/staff/reject/:id'
+          params:
+            - name: id
+              value: '4'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
 bundled: true
 extensions:
   bruno:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-11-23T09:40:26.017Z'
+    exportedAt: '2026-11-23T14:40:20.775Z'
     exportedUsing: Bruno
