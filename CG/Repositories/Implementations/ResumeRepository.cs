@@ -26,6 +26,15 @@ namespace CG.Repositories.Implementations
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Resume?> GetByIdAndApplicantProfileIdAsync(int id, int applicantProfileId)
+        {
+            return await _context.Resumes.FirstOrDefaultAsync(x => 
+            (
+                x.Id == id &&
+                x.ApplicantProfileId == applicantProfileId
+            ));
+        }
+
         public async Task<IEnumerable<Resume>> GetAllByApplicantProfileIdAsync(int applicantProfileId)
         {
             return await _context.Resumes.Where(x => x.ApplicantProfileId == applicantProfileId)

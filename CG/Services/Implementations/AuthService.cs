@@ -161,7 +161,7 @@ namespace CG.Services.Implementations
                 if (applicantProfile is not null)
                 {
                     applicantProfile.Skills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(applicantProfile.Id);
-                    applicantProfile.Resumes = await _resumeService.GetAllByApplicantProfileIdAsync(applicantProfile.Id);
+                    applicantProfile.Resumes = await _resumeService.GetAllFromCurrentUserAsync();
                 }
 
                 return new ApplicantDto
