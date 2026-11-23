@@ -6,16 +6,13 @@ namespace CG.Services.Interfaces
     {
         Task<ResumeDto> GetByIdAsync(int id);
         
-        Task<List<ResumeDto>> GetAllByApplicantProfileIdAsync(int applicantProfileId);
+        Task<List<ResumeDto>> GetAllByApplicantProfileIdAsync(int id);
+        
+        Task<List<ResumeDto>> GetAllFromCurrentUserAsync();
 
         Task<List<ResumeDto>> GetAllAsync();
 
         Task<ResumeDto> CreateAsync(ResumeCreateDto request);
-
-        Task<ResumeDto> UpdateAsync(
-            int id,
-            ResumeUpdateDto request
-        );
 
         Task DeleteAsync(int id);
     }

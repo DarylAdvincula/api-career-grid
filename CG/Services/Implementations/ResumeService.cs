@@ -73,6 +73,18 @@ namespace CG.Services.Implementations
                 .ToList();
         }
 
+        public async Task<List<ResumeDto>> GetAllFromCurrentUserAsync()
+        {
+            var currentProfile = await GetOptionalCurrentProfileAsync();
+
+            if (currentProfile is null)
+                return new List<ResumeDto>();
+
+            var resumes = await _resumeRepository.GetAllByApplicantProfileIdAsync(currentProfile.Id);
+            return resumes.Select(ToDto)
+                .ToList();
+        }
+
         public async Task<List<ResumeDto>> GetAllAsync()
         {
             var resumes = await _resumeRepository.GetAllAsync();
@@ -198,7 +210,14 @@ namespace CG.Services.Implementations
 
         public async Task DeleteAsync(int id)
         {
-            var resume = await GetByIdOrThrowAsync(id);
+            var currentProfile = await GetRequiredCurrentProfileAsync();
+            var resume = await _resumeRepository.GetByIdAndApplicantProfileIdAsync(id, currentProfile.Id);
+            
+            if (resume is null)
+                throw new NotFoundException($"Resume with id '{id}' and applicant profile id '{currentProfile.Id}' does not exist.");
+            
+            if (resume.IsPrimary)
+                throw new ForbiddenException("You can only delete non-primary resumes.");
             
             _resumeRepository.Delete(resume);
             await _resumeRepository.SaveChangesAsync();

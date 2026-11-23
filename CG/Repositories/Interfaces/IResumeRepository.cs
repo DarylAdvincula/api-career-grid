@@ -6,6 +6,7 @@ namespace CG.Repositories.Interfaces
     {
         Task<Resume?> GetByIdAsync(int id);
         Task<Resume?> GetPrimaryByApplicantProfileId(int applicantProfileId);
+        Task<Resume?> GetByIdAndApplicantProfileIdAsync(int id, int applicantProfileId);
         Task<IEnumerable<Resume>> GetAllByApplicantProfileIdAsync(int applicantProfileId);
         Task<IEnumerable<Resume>> GetAllAsync();
         Task AddAsync(Resume resume);
