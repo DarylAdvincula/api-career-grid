@@ -21,23 +21,19 @@ config:
           value: kyledaryladvincula2004
 items:
   - info:
-      name: company
+      name: application
       type: folder
-      seq: 4
+      seq: 6
     request:
       auth: inherit
     items:
       - info:
-          name: approve
+          name: continue
           type: http
-          seq: 2
+          seq: 4
         http:
           method: PATCH
-          url: '{{base_url}}/company/approve/:id'
-          params:
-            - name: id
-              value: '1'
-              type: path
+          url: '{{base_url}}/application/continue/1'
           auth: inherit
         settings:
           encodeUrl: true
@@ -46,12 +42,35 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
       - info:
-          name: index
+          name: create
+          type: http
+          seq: 3
+        http:
+          method: POST
+          url: '{{base_url}}/application'
+          body:
+            type: json
+            data: |-
+              {
+                "jobPostingId": 1,
+                "resumeId": 5,
+                "isDraft": true,
+                "coverLetter": "Test cover letter"
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: find
           type: http
           seq: 1
         http:
           method: GET
-          url: '{{base_url}}/company'
+          url: '{{base_url}}/application/1'
           auth: inherit
         settings:
           encodeUrl: true
@@ -60,16 +79,51 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
       - info:
-          name: reject
+          name: job-posting
           type: http
-          seq: 3
+          seq: 2
+        http:
+          method: GET
+          url: '{{base_url}}/application/job-posting/1'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update-status
+          type: http
+          seq: 6
         http:
           method: PATCH
-          url: '{{base_url}}/company/reject/:id'
+          url: '{{base_url}}/application/update-status/1?ApplicationStatus=Screening'
           params:
-            - name: id
-              value: '1'
-              type: path
+            - name: ApplicationStatus
+              value: Screening
+              type: query
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: update
+          type: http
+          seq: 5
+        http:
+          method: PATCH
+          url: '{{base_url}}/application/1'
+          body:
+            type: json
+            data: |-
+              {
+                "resumeId": 5,
+                "coverLetter": "Test Cover Letter (edited)"
+              }
           auth: inherit
         settings:
           encodeUrl: true
@@ -112,143 +166,6 @@ items:
           followRedirects: true
           maxRedirects: 5
           forwardAuthorizationHeader: false
-      - info:
-          name: sign-up
-          type: folder
-          seq: 3
-        request:
-          auth: inherit
-        items:
-          - info:
-              name: as-applicant
-              type: http
-              seq: 5
-            http:
-              method: POST
-              url: '{{base_url}}/auth/register/applicant'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Kyle",
-                    "lastName": "Advincula",
-                    "email": "{{base_email}}+5@gmail.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-admin
-              type: http
-              seq: 2
-            http:
-              method: POST
-              url: '{{base_url}}/auth/register/staff'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Jimuel",
-                    "lastName": "Hipana",
-                    "email": "{{base_email}}+2@gmail.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "companyId": 1,
-                    "companyRole": "Admin"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-hiring-manager
-              type: http
-              seq: 4
-            http:
-              method: POST
-              url: '{{base_url}}/auth/register/staff'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Eduard",
-                    "lastName": "Gomez",
-                    "email": "{{base_email}}+4@gmail.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "companyId": 1,
-                    "companyRole": "HiringManager"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-owner
-              type: http
-              seq: 1
-            http:
-              method: POST
-              url: '{{base_url}}/auth/register/owner'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Patrick",
-                    "lastName": "Palanas",
-                    "email": "{{base_email}}+1@gmail.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "name": "CareerGrid",
-                    "description": "CareerGrid Description...",
-                    "websiteUrl": "https://www.careergrid.com",
-                    "logoUrl": "https://www.careergrid.com/logo.webp"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
-          - info:
-              name: as-company-recruiter
-              type: http
-              seq: 3
-            http:
-              method: POST
-              url: '{{base_url}}/auth/register/staff'
-              body:
-                type: json
-                data: |-
-                  {
-                    "firstName": "Jericho",
-                    "lastName": "De Castro",
-                    "email": "{{base_email}}+3@gmail.com",
-                    "password": "hahahaha",
-                    "repeatedPassword": "hahahaha",
-                    "companyId": 1,
-                    "companyRole": "Recruiter"
-                  }
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
       - info:
           name: sign-in
           type: folder
@@ -374,6 +291,143 @@ items:
                   {
                     "email": "{{base_email}}+3@gmail.com",
                     "password": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+      - info:
+          name: sign-up
+          type: folder
+          seq: 3
+        request:
+          auth: inherit
+        items:
+          - info:
+              name: as-applicant
+              type: http
+              seq: 5
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/applicant'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Kyle",
+                    "lastName": "Advincula",
+                    "email": "{{base_email}}+5@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-admin
+              type: http
+              seq: 2
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/staff'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Jimuel",
+                    "lastName": "Hipana",
+                    "email": "{{base_email}}+2@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "companyCode": "mJg5YM",
+                    "companyRole": "Admin"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-hiring-manager
+              type: http
+              seq: 4
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/staff'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Eduard",
+                    "lastName": "Gomez",
+                    "email": "{{base_email}}+4@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "companyCode": "mJg5YM",
+                    "companyRole": "HiringManager"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-owner
+              type: http
+              seq: 1
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/owner'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Patrick",
+                    "lastName": "Palanas",
+                    "email": "{{base_email}}+1@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "name": "CareerGrid",
+                    "description": "CareerGrid Description...",
+                    "websiteUrl": "https://www.careergrid.com",
+                    "logoUrl": "https://www.careergrid.com/logo.webp"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: as-company-recruiter
+              type: http
+              seq: 3
+            http:
+              method: POST
+              url: '{{base_url}}/auth/register/staff'
+              body:
+                type: json
+                data: |-
+                  {
+                    "firstName": "Jericho",
+                    "lastName": "De Castro",
+                    "email": "{{base_email}}+3@gmail.com",
+                    "password": "hahahaha",
+                    "repeatedPassword": "hahahaha",
+                    "companyCode": "mJg5YM",
+                    "companyRole": "Recruiter"
                   }
               auth: inherit
             settings:
@@ -565,70 +619,122 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
   - info:
-      name: profile
+      name: company
       type: folder
-      seq: 2
+      seq: 4
     request:
       auth: inherit
     items:
       - info:
-          name: applicant
-          type: folder
-          seq: 1
-        request:
+          name: approve
+          type: http
+          seq: 2
+        http:
+          method: PATCH
+          url: '{{base_url}}/company/approve/:id'
+          params:
+            - name: id
+              value: '1'
+              type: path
           auth: inherit
-        items:
-          - info:
-              name: create
-              type: http
-              seq: 1
-            http:
-              method: POST
-              url: '{{base_url}}/profile/applicant'
-              body:
-                type: multipart-form
-                data:
-                  - name: headline
-                    type: text
-                    value: Test Headline
-                  - name: homeLocation
-                    type: text
-                    value: Test Home Location
-                  - name: bio
-                    type: text
-                    value: Test Bio
-                  - name: resumes[0].resumeFile
-                    type: file
-                    value:
-                      - C:\Users\kyled\Personal\career\hiring\Kyle_Daryl_Advincula_CV.pdf
-                  - name: resumes[0].isPrimary
-                    type: text
-                    value: 'true'
-                  - name: skills[0].skillId
-                    type: text
-                    value: ''
-                  - name: skills[0].yearsOfExperience
-                    type: text
-                    value: '2'
-                  - name: skills[0].proficiencyLevel
-                    type: text
-                    value: Intermediate
-                  - name: skills[0].skill.jobClassificationId
-                    type: text
-                    value: ''
-                  - name: skills[0].skill.jobSubClassificationId
-                    type: text
-                    value: ''
-                  - name: skills[0].skill.name
-                    type: text
-                    value: ASP.NET Core Web API Development
-              auth: inherit
-            settings:
-              encodeUrl: true
-              timeout: 0
-              followRedirects: true
-              maxRedirects: 5
-              forwardAuthorizationHeader: false
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: index
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: '{{base_url}}/company'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: reject
+          type: http
+          seq: 3
+        http:
+          method: PATCH
+          url: '{{base_url}}/company/reject/:id'
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+  - info:
+      name: resume
+      type: folder
+      seq: 7
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: create
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: '{{base_url}}/resume'
+          body:
+            type: multipart-form
+            data:
+              - name: resumeFile
+                type: file
+                value:
+                  - C:\Users\kbadvincula\Downloads\G_TRACS_rev_CAMU 092524_AJP_CAMU_MMD v3 1.pdf
+                contentType: application/pdf
+              - name: isPrimary
+                type: text
+                value: 'true'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: delete
+          type: http
+          seq: 3
+        http:
+          method: DELETE
+          url: '{{base_url}}/resume/2'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: index
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: '{{base_url}}/resume'
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
   - info:
       name: staff
       type: folder
@@ -645,7 +751,7 @@ items:
           url: '{{base_url}}/staff/approve/:id'
           params:
             - name: id
-              value: '8'
+              value: '6'
               type: path
           auth: inherit
         settings:
@@ -687,109 +793,99 @@ items:
           maxRedirects: 5
           forwardAuthorizationHeader: false
   - info:
-      name: application
+      name: profile
       type: folder
-      seq: 6
+      seq: 2
     request:
       auth: inherit
     items:
       - info:
-          name: create
-          type: http
-          seq: 3
-        http:
-          method: POST
-          url: '{{base_url}}/application'
-          body:
-            type: json
-            data: |-
-              {
-                "jobPostingId": 1,
-                "resumeId": 5,
-                "isDraft": true,
-                "coverLetter": "Test cover letter"
-              }
+          name: applicant
+          type: folder
+          seq: 1
+        request:
           auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
+        items:
+          - info:
+              name: create
+              type: http
+              seq: 1
+            http:
+              method: POST
+              url: '{{base_url}}/profile/applicant'
+              body:
+                type: multipart-form
+                data:
+                  - name: headline
+                    type: text
+                    value: Test Headline
+                  - name: homeLocation
+                    type: text
+                    value: Test Home Location
+                  - name: bio
+                    type: text
+                    value: Test Bio
+                  - name: resumes[0].resumeFile
+                    type: file
+                    value:
+                      - C:\Users\kbadvincula\Downloads\G_TRACS_rev_CAMU 092524_AJP_CAMU_MMD v3 1.pdf
+                    contentType: application/pdf
+                  - name: resumes[0].isPrimary
+                    type: text
+                    value: 'true'
+                  - name: skills[0].skillId
+                    type: text
+                    value: ''
+                  - name: skills[0].skill.name
+                    type: text
+                    value: ASP.NET Core Web API Development
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+          - info:
+              name: update
+              type: http
+              seq: 2
+            http:
+              method: PATCH
+              url: '{{base_url}}/profile/applicant'
+              body:
+                type: json
+                data: |-
+                  {
+                    "headline": "Headline",
+                    "homeLocation": "Home Location",
+                    "bio": "Bio"
+                  }
+              auth: inherit
+            settings:
+              encodeUrl: true
+              timeout: 0
+              followRedirects: true
+              maxRedirects: 5
+              forwardAuthorizationHeader: false
+  - info:
+      name: skill
+      type: folder
+      seq: 8
+    request:
+      auth: inherit
+    items:
       - info:
-          name: update
-          type: http
-          seq: 5
-        http:
-          method: PATCH
-          url: '{{base_url}}/application/1'
-          body:
-            type: json
-            data: |-
-              {
-                "resumeId": 5,
-                "coverLetter": "Test Cover Letter (edited)"
-              }
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: continue
-          type: http
-          seq: 4
-        http:
-          method: PATCH
-          url: '{{base_url}}/application/continue/1'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: update-status
-          type: http
-          seq: 6
-        http:
-          method: PATCH
-          url: '{{base_url}}/application/update-status/1?ApplicationStatus=Screening'
-          params:
-            - name: ApplicationStatus
-              value: Screening
-              type: query
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: find
+          name: index
           type: http
           seq: 1
         http:
           method: GET
-          url: '{{base_url}}/application/1'
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-          forwardAuthorizationHeader: false
-      - info:
-          name: job-posting
-          type: http
-          seq: 2
-        http:
-          method: GET
-          url: '{{base_url}}/application/job-posting/1'
+          url: '{{base_url}}/skill?search='
+          params:
+            - name: search
+              value: ''
+              type: query
           auth: inherit
         settings:
           encodeUrl: true
@@ -803,5 +899,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-11-15T05:39:41.610Z'
+    exportedAt: '2026-11-23T09:40:26.017Z'
     exportedUsing: Bruno
