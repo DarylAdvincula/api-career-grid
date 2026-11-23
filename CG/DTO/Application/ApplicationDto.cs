@@ -1,5 +1,5 @@
-using CG.DTO.AccountProfile;
 using CG.DTO.ApplicantProfile;
+using CG.DTO.Resume;
 using CG.Models;
 
 namespace CG.DTO.Application
@@ -14,5 +14,7 @@ namespace CG.DTO.Application
         public ApplicationStatus ApplicationStatus { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public ResumeDto Resume { get; set; } = null!;
+        public ApplicantProfileDto ApplicantProfile { get; set; } = null!;
     }
 }

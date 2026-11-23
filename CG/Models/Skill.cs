@@ -15,6 +15,7 @@ namespace CG.Models
 
         public JobClassification? JobClassification { get; set; } = null!;
         public JobSubClassification? JobSubClassification { get; set; } = null!;
+        public ICollection<ApplicantSkill> ApplicantSkills { get; set; } = [];
 
         // +3 indexes (non-clustered)
         // [x] Name

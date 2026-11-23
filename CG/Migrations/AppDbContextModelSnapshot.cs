@@ -17,7 +17,7 @@ namespace CG.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.33")
+                .HasAnnotation("ProductVersion", "8.0.34")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -678,15 +678,15 @@ namespace CG.Migrations
             modelBuilder.Entity("CG.Models.ApplicantSkill", b =>
                 {
                     b.HasOne("CG.Models.ApplicantProfile", "ApplicantProfile")
-                        .WithMany()
+                        .WithMany("ApplicantSkills")
                         .HasForeignKey("ApplicantProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CG.Models.Skill", "Skill")
-                        .WithMany()
+                        .WithMany("ApplicantSkills")
                         .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApplicantProfile");
@@ -892,6 +892,16 @@ namespace CG.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicantProfile");
+                });
+
+            modelBuilder.Entity("CG.Models.ApplicantProfile", b =>
+                {
+                    b.Navigation("ApplicantSkills");
+                });
+
+            modelBuilder.Entity("CG.Models.Skill", b =>
+                {
+                    b.Navigation("ApplicantSkills");
                 });
 #pragma warning restore 612, 618
         }

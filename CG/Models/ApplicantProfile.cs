@@ -19,5 +19,6 @@ namespace CG.Models
         public DateTime CreatedAt { get; init; } = DateTime.Now;
 
         public UserAccount UserAccount { get; set; } = null!;
+        public ICollection<ApplicantSkill> ApplicantSkills { get; set; } = [];
     }
 }

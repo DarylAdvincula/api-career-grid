@@ -75,6 +75,13 @@ namespace CG.Controllers
             return Ok(await _jobPostingService.RejectAsync(id));
         }
 
+        [Employer(CompanyRole.Recruiter)]
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(int id, JobPostingUpdateDto request)
+        {
+            return Ok(await _jobPostingService.UpdateAsync(id, request));
+        }
+
         [Employer(CompanyRole.Admin)]
         [HttpDelete("archive/{id}")]
         public async Task<IActionResult> Archive(int id)

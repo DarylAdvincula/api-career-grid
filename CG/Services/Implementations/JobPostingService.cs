@@ -144,8 +144,6 @@ namespace CG.Services.Implementations
             {
                 CompanyId = currentCompany.Id,
                 CreatedByEmployerId = currentUser.Id,
-                JobClassificationId = request.JobClassificationId,
-                JobSubClassificationId = request.JobSubClassificationId,
                 Title = request.Title,
                 RequirementsMarkdown = request.RequirementsMarkdown,
                 JobType = string.IsNullOrEmpty(request.JobType)
@@ -172,12 +170,22 @@ namespace CG.Services.Implementations
             await BlockPendingOrRejectedStaff();
             
             var jobPosting = await GetByIdOrThrowAsync(id);
-            jobPosting.JobClassificationId = request.JobClassificationId;
-            jobPosting.JobSubClassificationId = request.JobSubClassificationId;
+            var currentCompany = await GetCurrentCompanyAsync();
+
+            if (jobPosting.CompanyId != currentCompany.Id)
+                throw new ForbiddenException($"You can only update job postings that are associated to your company.");
+            
+            if (jobPosting.ApprovalStatus != ApprovalStatus.Draft)
+                throw new ForbiddenException($"You can only update drafted job postings.");
+            
             jobPosting.Title = request.Title;
             jobPosting.RequirementsMarkdown = request.RequirementsMarkdown;
-            jobPosting.JobType = request.JobType;
-            jobPosting.WorkEnvironment = request.WorkEnvironment;
+            jobPosting.JobType = string.IsNullOrEmpty(request.JobType)
+                ? null
+                : EnumHandler.Parse<JobType>(request.JobType);
+            jobPosting.WorkEnvironment = string.IsNullOrEmpty(request.WorkEnvironment)
+                ? null
+                : EnumHandler.Parse<WorkEnvironment>(request.WorkEnvironment);
             jobPosting.Location = request.Location;
             jobPosting.MinSalary = request.MinSalary;
             jobPosting.MaxSalary = request.MaxSalary;

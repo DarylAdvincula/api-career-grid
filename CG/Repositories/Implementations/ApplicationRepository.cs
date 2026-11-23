@@ -16,7 +16,13 @@ namespace CG.Repositories.Implementations
 
         public async Task<Application?> GetByIdAsync(int id)
         {
-            return await _context.Applications.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Applications.Include(x => x.Resume)
+                .Include(x => x.ApplicantProfile)
+                    .ThenInclude(x => x.ApplicantSkills)
+                        .ThenInclude(x => x.Skill)
+                .Include(x => x.ApplicantProfile)
+                    .ThenInclude(x => x.UserAccount)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<Application>> GetAllByApplicantProfileIdAsync(int applicantProfileId, ApplicationStatus? applicationStatus = null)
@@ -27,7 +33,12 @@ namespace CG.Repositories.Implementations
             if (applicationStatus is not null)
                 applicationsQuery = applicationsQuery.Where(x => x.ApplicationStatus == applicationStatus);
 
-            return await applicationsQuery
+            return await applicationsQuery.Include(x => x.Resume)
+                .Include(x => x.ApplicantProfile)
+                    .ThenInclude(x => x.ApplicantSkills)
+                        .ThenInclude(x => x.Skill)
+                .Include(x => x.ApplicantProfile)
+                    .ThenInclude(x => x.UserAccount)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -39,7 +50,12 @@ namespace CG.Repositories.Implementations
                 x.JobPosting.CompanyId == companyId &&
                 x.JobPostingId == jobPostingId
             ))
-                .Include(x => x.JobPosting)
+                .Include(x => x.Resume)
+                .Include(x => x.ApplicantProfile)
+                    .ThenInclude(x => x.ApplicantSkills)
+                        .ThenInclude(x => x.Skill)
+                .Include(x => x.ApplicantProfile)
+                    .ThenInclude(x => x.UserAccount)
                 .AsNoTracking()
                 .ToListAsync();
         }

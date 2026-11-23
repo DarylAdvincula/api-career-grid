@@ -27,7 +27,7 @@ namespace CG.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public JobPosting JobPosting { get; set; } = null!;
         public ApplicantProfile ApplicantProfile { get; set; } = null!;
-        public Resume? Resume { get; set; }
+        public Resume Resume { get; set; } = null!;
 
         // +1 check
         // [x] ApplicationStatus is in ApplicationStatus enum
