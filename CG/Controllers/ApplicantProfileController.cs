@@ -39,5 +39,12 @@ namespace CG.Controllers
 
             return StatusCode(StatusCodes.Status201Created, await _applicantProfileService.CreateAsync(request));
         }
+
+        [Authorize(Roles = "Applicant")]
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] ApplicantProfileUpdateDto request)
+        {
+            return Ok(await _applicantProfileService.UpdateAsync(id, request));
+        }
     }
 }

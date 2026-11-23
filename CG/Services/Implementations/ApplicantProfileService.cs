@@ -82,7 +82,8 @@ namespace CG.Services.Implementations
         {
             var profile = await GetByIdOrThrowAsync(id);
             var skills = await _applicantSkillService.GetAllByApplicantProfileIdAsync(profile.Id);
-            return ToDto(profile, skills);
+            var resumes = await _resumeService.GetAllByApplicantProfileIdAsync(profile.Id);
+            return ToDto(profile, skills, resumes);
         }
 
         public async Task<ApplicantProfileDto?> GetByUserAccountIdAsync(int userAccountId)
@@ -223,14 +224,20 @@ namespace CG.Services.Implementations
 
             if (existingProfile is null)
                 throw new BadRequestException("You haven't created your profile yet. Please create it first.");
-            
-            existingProfile.Headline = request.Headline;
-            existingProfile.HomeLocation = request.HomeLocation;
-            existingProfile.Bio = request.Bio;
+
+            existingProfile.Headline = request.Headline is null
+                ? existingProfile.Headline
+                : request.Headline;
+            existingProfile.HomeLocation = request.HomeLocation is null
+                ? existingProfile.HomeLocation
+                : request.HomeLocation;
+            existingProfile.Bio = request.Bio is null
+                ? existingProfile.Bio
+                : request.Bio;
 
             _applicantProfileRepository.Update(existingProfile);
             await _applicantProfileRepository.SaveChangesAsync();
-            return ToDto(existingProfile);
+            return await GetByIdAsync(id);
         }
 
         public async Task DeleteAsync(int id)
