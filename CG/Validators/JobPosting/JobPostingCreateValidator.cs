@@ -9,16 +9,6 @@ namespace CG.Validators.JobPosting
     {
         public JobPostingCreateValidator()
         {
-            RuleFor(x => x.JobClassificationId)
-                .GreaterThan(0)
-                    .WithMessage("Job classification is invalid.")
-                    .When(x => x.JobClassificationId.HasValue);
-            
-            RuleFor(x => x.JobSubClassificationId)
-                .GreaterThan(0)
-                    .WithMessage("Job sub classification is invalid.")
-                    .When(x => x.JobSubClassificationId.HasValue);
-            
             RuleFor(x => x.Title)
                 .NotEmpty()
                     .WithMessage("Job title is required.")

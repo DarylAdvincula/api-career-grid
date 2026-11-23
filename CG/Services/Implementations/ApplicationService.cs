@@ -1,4 +1,9 @@
+using CG.DTO.ApplicantProfile;
+using CG.DTO.ApplicantSkill;
 using CG.DTO.Application;
+using CG.DTO.Resume;
+using CG.DTO.Skill;
+using CG.DTO.UserAccount;
 using CG.Exceptions;
 using CG.Models;
 using CG.Repositories.Interfaces;
@@ -58,6 +63,51 @@ namespace CG.Services.Implementations
                 ApplicationStatus = application.ApplicationStatus,
                 SubmittedAt = application.SubmittedAt,
                 UpdatedAt = application.UpdatedAt,
+                Resume = new ResumeDto
+                {
+                    Id = application.Resume.Id,
+                    ApplicantProfileId = application.Resume.ApplicantProfileId,
+                    OriginalFileName = application.Resume.OriginalFileName,
+                    StoredFileName = application.Resume.StoredFileName,
+                    FilePath = application.Resume.FilePath,
+                    FileExtension = application.Resume.FileExtension,
+                    ContentType = application.Resume.ContentType,
+                    FileSizeInBytes = application.Resume.FileSizeInBytes,
+                    IsPrimary = application.Resume.IsPrimary,
+                    UploadedAt = application.Resume.UploadedAt
+                },
+                ApplicantProfile = new ApplicantProfileDto
+                {
+                    Id = application.ApplicantProfile.Id,
+                    UserAccountId = application.ApplicantProfile.UserAccountId,
+                    Headline = application.ApplicantProfile.Headline,
+                    HomeLocation = application.ApplicantProfile.HomeLocation,
+                    Bio = application.ApplicantProfile.Bio,
+                    CreatedAt = application.ApplicantProfile.CreatedAt,
+                    Skills = application.ApplicantProfile.ApplicantSkills.Select(x => new ApplicantSkillDto
+                    {
+                        Id = x.Id,
+                        ApplicantProfileId = x.ApplicantProfileId,
+                        SkillId = x.SkillId,
+                        Skill = new SkillDto
+                        {
+                            Id = x.Skill.Id,
+                            Name = x.Skill.Name,
+                            CreatedAt = x.Skill.CreatedAt
+                        }
+                    }).ToList(),
+                    UserAccount = new UserAccountDto
+                    {
+                        Id = application.ApplicantProfile.UserAccount.Id,
+                        Email = application.ApplicantProfile.UserAccount.Email,
+                        FirstName = application.ApplicantProfile.UserAccount.FirstName,
+                        LastName = application.ApplicantProfile.UserAccount.LastName,
+                        Role = application.ApplicantProfile.UserAccount.Role,
+                        IsVerified = application.ApplicantProfile.UserAccount.IsVerified,
+                        CreatedAt = application.ApplicantProfile.UserAccount.CreatedAt,
+                        UpdatedAt = application.ApplicantProfile.UserAccount.UpdatedAt,
+                    }
+                }
             };
         }
         

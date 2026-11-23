@@ -165,6 +165,11 @@ namespace CG.DAL
             modelBuilder.Entity<EmployerProfile>()
                 .HasIndex(e => e.CompanyId);
             
+            modelBuilder.Entity<ApplicantProfile>()
+                .HasMany(e => e.ApplicantSkills)
+                .WithOne(e => e.ApplicantProfile)
+                .HasForeignKey(e => e.ApplicantProfileId);
+            
             modelBuilder.Entity<WorkExperience>()
                 .ToTable("WorkExperiences", e =>
                 {
@@ -209,6 +214,12 @@ namespace CG.DAL
             
             modelBuilder.Entity<ApplicantSkill>()
                 .HasIndex(e => e.SkillId);
+
+            modelBuilder.Entity<ApplicantSkill>()
+                .HasOne(e => e.Skill)
+                .WithMany(e => e.ApplicantSkills)
+                .HasForeignKey(e => e.SkillId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             modelBuilder.Entity<JobPosting>()
                 .Property(e => e.ApprovalStatus)
