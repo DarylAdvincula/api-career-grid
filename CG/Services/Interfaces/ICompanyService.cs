@@ -6,6 +6,7 @@ namespace CG.Services.Interfaces
     public interface ICompanyService
     {
         Task<CompanyDto> GetByIdAsync(int id);
+        Task<CompanyDto> GetByCodeAsync(string code);
 
         Task<IEnumerable<CompanyDto>> GetAllAsync(
             string? search = null,

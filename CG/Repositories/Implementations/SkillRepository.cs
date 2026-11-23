@@ -24,9 +24,14 @@ namespace CG.Repositories.Implementations
             return await _context.Skills.FirstOrDefaultAsync(x => x.Name == name);
         }
 
-        public async Task<IEnumerable<Skill>> GetAllAsync()
+        public async Task<IEnumerable<Skill>> GetAllAsync(string? search = null)
         {
-            return await _context.Skills.AsNoTracking()
+            var skillsQuery = _context.Skills.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                skillsQuery = skillsQuery.Where(x => x.Name.Contains(search));
+                
+            return await skillsQuery.AsNoTracking()
                 .ToListAsync();
         }
 

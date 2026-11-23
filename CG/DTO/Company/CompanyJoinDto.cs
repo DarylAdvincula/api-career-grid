@@ -4,7 +4,7 @@ namespace CG.DTO.Company
 {
     public class CompanyJoinDto : UserAccountCreateDto
     {
-        public int CompanyId { get; set; }
+        public string CompanyCode { get; set; } = string.Empty;
         public string CompanyRole { get; set; } = string.Empty;
     }
 }

@@ -71,7 +71,7 @@ namespace CG.Controllers
                     e.ErrorMessage,
                 }));
             }
-            
+
             return StatusCode(StatusCodes.Status201Created, await _authService.RegisterAsOwner(request));
         }
 

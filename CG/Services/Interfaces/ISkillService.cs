@@ -6,7 +6,7 @@ namespace CG.Services.Interfaces
     {
         Task<SkillDto> GetByIdAsync(int id);
 
-        Task<IEnumerable<SkillDto>> GetAllAsync();
+        Task<IEnumerable<SkillDto>> GetAllAsync(string? search = null);
 
         Task<SkillDto> CreateAsync(SkillCreateDto request);
 

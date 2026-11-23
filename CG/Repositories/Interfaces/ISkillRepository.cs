@@ -6,7 +6,7 @@ namespace CG.Repositories.Interfaces
     {
         Task<Skill?> GetByIdAsync(int id);
         Task<Skill?> GetByNameAsync(string name);
-        Task<IEnumerable<Skill>> GetAllAsync();
+        Task<IEnumerable<Skill>> GetAllAsync(string? search = null);
         Task AddAsync(Skill skill);
         void Update(Skill skill);
         void Delete(Skill skill);

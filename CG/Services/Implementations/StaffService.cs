@@ -33,7 +33,7 @@ namespace CG.Services.Implementations
 
         private async Task<EmployerProfile> GetByUserAccountIdAndCompanyIdOrThrowAsync(int userAccountId, int companyId)
         {
-            var profile = await _employerProfileRepository.GetByUserAccountIdAndCompanyIdAsync(userAccountId, companyId);
+            var profile = await _employerProfileRepository.GetByUserAccountAndCompanyIdAsync(userAccountId, companyId);
 
             if (profile is null)
                 throw new NotFoundException($"Applicant profile with user account id '{userAccountId}' and company id '{companyId}' does not exist.");
@@ -85,7 +85,8 @@ namespace CG.Services.Implementations
 
         public async Task<List<EmployerDto>> GetAll(
             string? search = null,
-            CompanyRole? role = null
+            CompanyRole? role = null,
+            MembershipStatus? membershipStatus = null
         )
         {
             var currentCompany = await GetCurrentCompanyAsync();
@@ -99,8 +100,11 @@ namespace CG.Services.Implementations
                     $"{x.UserAccount.FirstName} {x.UserAccount.LastName}".Contains(search)
                 ));
             
-            if (search is not null)
+            if (role is not null)
                 staffProfileQuery = staffProfileQuery.Where(x => x.CompanyRole == role);
+            
+            if (membershipStatus is not null)
+                staffProfileQuery = staffProfileQuery.Where(x => x.MembershipStatus == membershipStatus);
 
             var staffProfiles = await staffProfileQuery
                 .Include(x => x.UserAccount)

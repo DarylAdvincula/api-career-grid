@@ -1,3 +1,5 @@
+using CG.DTO.AccountProfile;
+using CG.DTO.ApplicantProfile;
 using CG.Models;
 
 namespace CG.DTO.Application

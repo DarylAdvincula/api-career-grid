@@ -75,5 +75,17 @@ namespace CG.Services.Implementations
 
             await SendAsync(userAccount.Email, "Email Verification Success!", body);
         }
+
+        public async Task SendCompanyVerifiedAsync(UserAccount userAccount, Company company)
+        {
+            var body = await _emailTemplateService.RenderAsync("ComapanyVerified", new Dictionary<string, string>
+            {
+                ["Name"] = $"{userAccount.FirstName}",
+                ["CompanyName"] = company.Name,
+                ["CompanyCode"] = company.Code!
+            });
+
+            await SendAsync(userAccount.Email, "Company Verified!", body);
+        }
     }
 }

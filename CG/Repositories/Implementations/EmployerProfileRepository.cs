@@ -24,7 +24,7 @@ namespace CG.Repositories.Implementations
             return await _context.EmployerProfiles.FirstOrDefaultAsync(x => x.UserAccountId == userAccountId);
         }
 
-        public async Task<EmployerProfile?> GetByUserAccountIdAndCompanyIdAsync(
+        public async Task<EmployerProfile?> GetByUserAccountAndCompanyIdAsync(
             int userAccountId, 
             int companyId
         )
@@ -35,6 +35,17 @@ namespace CG.Repositories.Implementations
                     x.UserAccountId == userAccountId &&
                     x.CompanyId == companyId
                 ));
+        }
+
+        public async Task<EmployerProfile?> GetCompanyOwnerByCompanyId(int companyId)
+        {
+            return await _context.EmployerProfiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x =>
+            (
+                x.CompanyId == companyId &&
+                x.CompanyRole == CompanyRole.Owner
+            ));
         }
 
         public async Task<IEnumerable<EmployerProfile>> GetAllAsync()

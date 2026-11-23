@@ -7,7 +7,8 @@ namespace CG.Services.Interfaces
     {
         Task<List<EmployerDto>> GetAll(
             string? search = null,
-            CompanyRole? role = null
+            CompanyRole? role = null,
+            MembershipStatus? membershipStatus = null
         );
         Task<EmployerDto> Approve(int id);
         Task<EmployerDto> Reject(int id);

@@ -22,13 +22,12 @@ namespace CG.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? search, VerificationStatus? verificationStatus)
         {
-            return Ok(await _companyService.GetAllAsync(search, verificationStatus));
-        }
-
-        [HttpGet("approved")]
-        public async Task<IActionResult> GetApproved(string? search)
-        {
-            return Ok(await _companyService.GetAllAsync(search, VerificationStatus.Approved));
+            var companies = await _companyService.GetAllAsync(search, verificationStatus);
+            return Ok(companies.Select(x =>
+            {
+                x.Code = null;
+                return x;
+            }));
         }
 
         // needs mailing
