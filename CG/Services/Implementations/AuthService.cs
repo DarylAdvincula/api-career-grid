@@ -249,7 +249,7 @@ namespace CG.Services.Implementations
             if (request.CompanyRole == CompanyRole.Owner.ToString())
                 throw new BadRequestException("You cannot request to join into a company as an owner.");
 
-            var company = await _companyService.GetByIdAsync(request.CompanyId);
+            var company = await _companyService.GetByCodeAsync(request.CompanyCode);
 
             switch (company.VerificationStatus)
             {
@@ -274,7 +274,7 @@ namespace CG.Services.Implementations
                 var newUserProfile = new EmployerProfile
                 {
                     UserAccountId = newUserAccount.Id,
-                    CompanyId = request.CompanyId,
+                    CompanyId = company.Id,
                     CompanyRole = EnumHandler.Parse<CompanyRole>(request.CompanyRole)
                 };
 

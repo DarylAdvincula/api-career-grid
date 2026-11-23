@@ -8,18 +8,10 @@ namespace CG.Services.Implementations
 {
     public class SkillService : ISkillService
     {
-        private readonly IJobClassificationRepository _jobClassificationRepository;
-        private readonly IJobSubClassificationRepository _jobSubClassificationRepository;
         private readonly ISkillRepository _skillRepository;
 
-        public SkillService(
-            IJobClassificationRepository jobClassificationRepository,
-            IJobSubClassificationRepository jobSubClassificationRepository,
-            ISkillRepository skillRepository
-        )
+        public SkillService(ISkillRepository skillRepository)
         {
-            _jobClassificationRepository = jobClassificationRepository;
-            _jobSubClassificationRepository = jobSubClassificationRepository;
             _skillRepository = skillRepository;
         }
 
@@ -38,8 +30,6 @@ namespace CG.Services.Implementations
             return new SkillDto
             {
                 Id = skill.Id,
-                JobClassificationId = skill.JobClassificationId,
-                JobSubClassificationId = skill.JobSubClassificationId,
                 Name = skill.Name,
                 CreatedAt = skill.CreatedAt
             };
@@ -51,34 +41,16 @@ namespace CG.Services.Implementations
             return ToDto(skill);
         }
 
-        public async Task<IEnumerable<SkillDto>> GetAllAsync()
+        public async Task<IEnumerable<SkillDto>> GetAllAsync(string? search = null)
         {
-            var skills = await _skillRepository.GetAllAsync();
+            var skills = await _skillRepository.GetAllAsync(search);
             return skills.Select(ToDto);
         }
 
         public async Task<SkillDto> CreateAsync(SkillCreateDto request)
         {
-            if (request.JobClassificationId is not null)
-            {
-                var jobClassification = await _jobClassificationRepository.GetByIdAsync((int)request.JobClassificationId);
-                
-                if (jobClassification is null)
-                    throw new NotFoundException($"Job classification with id '{request.JobClassificationId}' does not exist.");
-            }
-
-            if (request.JobSubClassificationId is not null)
-            {
-                var jobSubClassification = await _jobSubClassificationRepository.GetByIdAsync((int)request.JobSubClassificationId);
-
-                if (jobSubClassification is null)
-                    throw new NotFoundException($"Job sub classification with id '{request.JobSubClassificationId}' does not exist.");
-            }
-
             var newSkill = new Skill
             {
-                JobClassificationId = request.JobClassificationId,
-                JobSubClassificationId = request.JobSubClassificationId,
                 Name = request.Name
             };
 
@@ -90,25 +62,6 @@ namespace CG.Services.Implementations
         public async Task<SkillDto> UpdateAsync(int id, SkillUpdateDto request)
         {
             var skill = await GetByIdOrThrowAsync(id);
-            
-            if (request.JobClassificationId is not null)
-            {
-                var jobClassification = await _jobClassificationRepository.GetByIdAsync((int)request.JobClassificationId);
-                
-                if (jobClassification is null)
-                    throw new NotFoundException($"Job classification with id '{request.JobClassificationId}' does not exist.");
-            }
-
-            if (request.JobSubClassificationId is not null)
-            {
-                var jobSubClassification = await _jobSubClassificationRepository.GetByIdAsync((int)request.JobSubClassificationId);
-
-                if (jobSubClassification is null)
-                    throw new NotFoundException($"Job sub classification with id '{request.JobSubClassificationId}' does not exist.");
-            }
-
-            skill.JobClassificationId = request.JobClassificationId;
-            skill.JobSubClassificationId = request.JobSubClassificationId;
             skill.Name = request.Name;
 ;
             await _skillRepository.SaveChangesAsync();

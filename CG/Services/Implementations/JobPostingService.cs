@@ -123,6 +123,11 @@ namespace CG.Services.Implementations
                     active == false // no access to archived posts (admin only)
                 )
                     throw forbiddenException;
+                else if (
+                    currentProfile.CompanyRole == CompanyRole.Admin &&
+                    approvalStatus == ApprovalStatus.Draft
+                )
+                    throw forbiddenException;
             }
 
             var jobPostings = await _jobPostingRepository.GetAllAsync(search, approvalStatus, active);

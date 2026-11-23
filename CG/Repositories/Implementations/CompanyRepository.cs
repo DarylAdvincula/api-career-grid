@@ -19,6 +19,11 @@ namespace CG.Repositories.Implementations
             return await _context.Companies.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<Company?> GetByCodeAsync(string code)
+        {
+            return await _context.Companies.FirstOrDefaultAsync(x => x.Code == code);
+        }
+
         public async Task<IEnumerable<Company>> GetAllAsync(
             string? search = null,
             VerificationStatus? verificationStatus = null

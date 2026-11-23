@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using CG.DTO.Company;
 using CG.Exceptions;
 using CG.Models;
@@ -8,10 +9,14 @@ namespace CG.Services.Implementations
 {
     public class CompanyService : BaseService, ICompanyService
     {
+        private readonly IEmailService _emailService;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IEmployerProfileRepository _employerProfileRepository;
 
         public CompanyService(
+            IEmailService emailService,
             ICompanyRepository companyRepository,
+            IEmployerProfileRepository employerProfileRepository,
             IHttpContextAccessor httpContextAccessor,
             IUserAccountRepository userAccountRepository
         ) : base(
@@ -19,7 +24,9 @@ namespace CG.Services.Implementations
             userAccountRepository
         )
         {
+            _emailService = emailService;
             _companyRepository = companyRepository;
+            _employerProfileRepository = employerProfileRepository;
         }
 
         private async Task<Company> GetByIdOrThrowAsync(int id)
@@ -45,6 +52,7 @@ namespace CG.Services.Implementations
                 VerificationStatus = company.VerificationStatus,
                 ApprovedAt = company.ApprovedAt,
                 CreatedAt = company.CreatedAt,
+                Code = company.Code
             };
         }
 
@@ -54,6 +62,16 @@ namespace CG.Services.Implementations
             
             if (company is null)
                 throw new NotFoundException($"Company with id '{id}' does not exist.");
+            
+            return ToDto(company);
+        }
+
+        public async Task<CompanyDto> GetByCodeAsync(string code)
+        {
+            var company = await _companyRepository.GetByCodeAsync(code);
+            
+            if (company is null)
+                throw new NotFoundException($"Company with code '{code}' does not exist.");
             
             return ToDto(company);
         }
@@ -114,8 +132,17 @@ namespace CG.Services.Implementations
             company.ApprovedByAdminId = currentUser.Id;
             company.ApprovedAt = DateTime.Now;
 
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            string companyCode = RandomNumberGenerator.GetString(chars, 6);
+            company.Code = companyCode;
+
             _companyRepository.Update(company);
             await _companyRepository.SaveChangesAsync();
+
+            var companyOwnerProfile = await _employerProfileRepository.GetCompanyOwnerByCompanyId(company.Id);
+            var companyOwnerUserAccount = await _userAccountRepository.GetByIdAsync(companyOwnerProfile!.UserAccountId);
+            
+            await _emailService.SendCompanyVerifiedAsync(companyOwnerUserAccount!, company);
             return ToDto(company);
         }
 

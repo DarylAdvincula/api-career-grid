@@ -12,11 +12,9 @@ namespace CG.Validators.Company
         {
             Include(userAccountValidator);
 
-            RuleFor(x => x.CompanyId)
+            RuleFor(x => x.CompanyCode)
                 .NotEmpty()
-                    .WithMessage("Company is required.")
-                .GreaterThan(0)
-                    .WithMessage("Company is invalid.");
+                    .WithMessage("Company is required.");
             
             RuleFor(x => x.CompanyRole)
                 .Must(companyRole => EnumHandler.IsValidMember<CompanyRole>(companyRole))

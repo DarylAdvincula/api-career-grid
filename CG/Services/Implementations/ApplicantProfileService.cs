@@ -128,8 +128,6 @@ namespace CG.Services.Implementations
                     {
                         var newSkill = new Skill
                         {
-                            JobClassificationId = skill?.Skill?.JobClassificationId,
-                            JobSubClassificationId = skill?.Skill?.JobSubClassificationId,
                             Name = skill!.Skill!.Name
                         };
 
@@ -138,8 +136,6 @@ namespace CG.Services.Implementations
 
                         newApplicantSkill.ApplicantProfileId = newProfile.Id;
                         newApplicantSkill.SkillId = newSkill.Id;
-                        newApplicantSkill.ProficiencyLevel = EnumHandler.Parse<ProficiencyLevel>(skill.ProficiencyLevel);
-                        newApplicantSkill.YearsOfExperience = skill.YearsOfExperience;
                     }
                     else
                     {
@@ -150,8 +146,6 @@ namespace CG.Services.Implementations
                                         
                         newApplicantSkill.ApplicantProfileId = userAccount.Id;
                         newApplicantSkill.SkillId = (int)skill.SkillId;
-                        newApplicantSkill.ProficiencyLevel = EnumHandler.Parse<ProficiencyLevel>(skill.ProficiencyLevel);
-                        newApplicantSkill.YearsOfExperience = skill.YearsOfExperience;
                     }
                     
                     await _applicantSkillRepository.AddAsync(newApplicantSkill);

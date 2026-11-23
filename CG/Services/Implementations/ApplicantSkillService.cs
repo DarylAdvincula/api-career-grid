@@ -2,7 +2,6 @@ using CG.DAL;
 using CG.DTO.ApplicantSkill;
 using CG.DTO.Skill;
 using CG.Exceptions;
-using CG.Helpers.Implementations;
 using CG.Models;
 using CG.Repositories.Interfaces;
 using CG.Services.Interfaces;
@@ -42,12 +41,8 @@ namespace CG.Services.Implementations
                 {
                     Id = applicantSkill.Skill.Id,
                     Name = applicantSkill.Skill.Name,
-                    JobClassificationId = applicantSkill.Skill.JobClassificationId,
-                    JobSubClassificationId = applicantSkill.Skill.JobSubClassificationId,
                     CreatedAt = applicantSkill.Skill.CreatedAt,
                 },
-                ProficiencyLevel = applicantSkill.ProficiencyLevel,
-                YearsOfExperience = applicantSkill.YearsOfExperience,
             };
         }
 
@@ -92,8 +87,6 @@ namespace CG.Services.Implementations
                 {
                     var newSkill = new Skill
                     {
-                        JobClassificationId = request?.Skill?.JobClassificationId,
-                        JobSubClassificationId = request?.Skill?.JobSubClassificationId,
                         Name = request!.Skill!.Name
                     };
 
@@ -102,8 +95,6 @@ namespace CG.Services.Implementations
 
                     newApplicantSkill.ApplicantProfileId = userAccount.Id;
                     newApplicantSkill.SkillId = newSkill.Id;
-                    newApplicantSkill.ProficiencyLevel = EnumHandler.Parse<ProficiencyLevel>(request.ProficiencyLevel);
-                    newApplicantSkill.YearsOfExperience = request.YearsOfExperience;
                 }
                 else
                 {
@@ -114,8 +105,6 @@ namespace CG.Services.Implementations
                                     
                     newApplicantSkill.ApplicantProfileId = userAccount.Id;
                     newApplicantSkill.SkillId = (int)request.SkillId;
-                    newApplicantSkill.ProficiencyLevel = EnumHandler.Parse<ProficiencyLevel>(request.ProficiencyLevel);
-                    newApplicantSkill.YearsOfExperience = request.YearsOfExperience;
                 }
 
                 await _applicantSkillRepository.AddAsync(newApplicantSkill);
@@ -128,17 +117,6 @@ namespace CG.Services.Implementations
                 await transaction.RollbackAsync();
                 throw;
             }
-        }
-
-        public async Task<ApplicantSkillDto> UpdateAsync(int id, ApplicantSkillUpdateDto request)
-        {
-            var applicantSkill = await GetByIdOrThrowAsync(id);
-            applicantSkill.YearsOfExperience = request.YearsOfExperience;
-            applicantSkill.ProficiencyLevel = request.ProficiencyLevel;
-
-            _applicantSkillRepository.Update(applicantSkill);
-            await _applicantSkillRepository.SaveChangesAsync();
-            return ToDto(applicantSkill);
         }
 
         public async Task DeleteAsync(int id)

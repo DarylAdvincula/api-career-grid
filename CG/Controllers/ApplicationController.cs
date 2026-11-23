@@ -13,9 +13,7 @@ namespace CG.Controllers
     {
         private readonly IApplicationService _applicationService;
         
-        public ApplicationController(
-            IApplicationService applicationService
-        )
+        public ApplicationController(IApplicationService applicationService)
         {
             _applicationService = applicationService;
         }

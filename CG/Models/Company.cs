@@ -8,7 +8,7 @@ namespace CG.Models
         Approved,
         Rejected
     }
-    
+
     public class Company
     {
         public int Id { get; set; }
@@ -18,6 +18,9 @@ namespace CG.Models
 
         [StringLength(150)]
         public string Name { get; set; } = string.Empty;
+        
+        [StringLength(6)]
+        public string? Code { get; set; }
 
         [StringLength(1500)] // instead of nvarchar(max)
         public string Description { get; set; } = string.Empty;

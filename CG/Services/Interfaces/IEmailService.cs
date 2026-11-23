@@ -7,5 +7,6 @@ namespace CG.Services.Interfaces
         Task SendAsync(string recipient, string subject, string htmlBody);
         Task SendEmailVerificationAsync(UserAccount userAccount);
         Task SendEmailVerifiedAsync(UserAccount userAccount);
+        Task SendCompanyVerifiedAsync(UserAccount userAccount, Company company);
     }
 }

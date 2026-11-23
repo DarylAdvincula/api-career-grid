@@ -123,7 +123,11 @@ namespace CG.DAL
             modelBuilder.Entity<Company>()
                 .Property(e => e.VerificationStatus)
                 .HasConversion<string>();
-            
+
+            modelBuilder.Entity<Company>()
+                .HasIndex(e => e.Code)
+                .IsUnique();
+
             modelBuilder.Entity<Company>()
                 .ToTable("Companies", e =>
                 {

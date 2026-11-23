@@ -1,5 +1,4 @@
 using CG.DTO.ApplicantSkill;
-using CG.Models;
 
 namespace CG.Services.Interfaces
 {
@@ -12,11 +11,6 @@ namespace CG.Services.Interfaces
         Task<List<ApplicantSkillDto>> GetAllAsync();
         
         Task<ApplicantSkillDto> CreateAsync(ApplicantSkillCreateDto request);
-        
-        Task<ApplicantSkillDto> UpdateAsync(
-            int id,
-            ApplicantSkillUpdateDto request
-        );
         
         Task DeleteAsync(int id);
     }

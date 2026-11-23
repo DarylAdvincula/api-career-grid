@@ -1,5 +1,7 @@
+using CG.Attributes;
 using CG.Models;
 using CG.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CG.Controllers
@@ -15,13 +17,17 @@ namespace CG.Controllers
             _staffService = staffService;
         }
 
+        [Authorize(Roles = "Employer")]
+        [Employer(CompanyRole.Owner)]
         [HttpGet]
-        public async Task<IActionResult> Index(string? search, CompanyRole? companyRole)
+        public async Task<IActionResult> Index(string? search, CompanyRole? companyRole, MembershipStatus? membershipStatus)
         {
-            return Ok(await _staffService.GetAll(search, companyRole));
+            return Ok(await _staffService.GetAll(search, companyRole, membershipStatus));
         }
 
         // needs mailing
+        [Authorize(Roles = "Employer")]
+        [Employer(CompanyRole.Owner)]
         [HttpPatch("approve/{id}")]
         public async Task<IActionResult> Approve(int id)
         {
@@ -29,6 +35,8 @@ namespace CG.Controllers
         }
 
         // needs mailing
+        [Authorize(Roles = "Employer")]
+        [Employer(CompanyRole.Owner)]
         [HttpPatch("reject/{id}")]
         public async Task<IActionResult> Reject(int id)
         {
