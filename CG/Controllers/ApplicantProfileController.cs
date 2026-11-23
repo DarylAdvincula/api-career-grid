@@ -42,9 +42,9 @@ namespace CG.Controllers
 
         [Authorize(Roles = "Applicant")]
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ApplicantProfileUpdateDto request)
+        public async Task<IActionResult> Update([FromBody] ApplicantProfileUpdateDto request)
         {
-            return Ok(await _applicantProfileService.UpdateAsync(id, request));
+            return Ok(await _applicantProfileService.UpdateAsync(request));
         }
     }
 }
