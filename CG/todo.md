@@ -53,3 +53,9 @@
 - [ ] Ungrouped
     - [ ] "Applied" indicator on job postings for applicants' job posting feed
     - [ ] Company information in job postings
+    - [ ] Staff deletion upon replacement (soft)
+    - [ ] "Does not exist" errors should only be exclusive for org. members, "Invalid" errors should be the public counterpart
+    - [ ] Application Status Update
+        - [ ] Reduce database roundtrip
+        - [ ] Ensure application process being followed
+        
