@@ -1,3 +1,4 @@
+using CG.DTO.Company;
 using CG.Models;
 
 namespace CG.DTO.JobPosting
@@ -7,8 +8,6 @@ namespace CG.DTO.JobPosting
         public int Id { get; set; }
         public int CompanyId { get; set; }
         public int CreatedByEmployerId { get; set; }
-        public int? JobClassificationId { get; set; }
-        public int? JobSubClassificationId { get; set; }
         public int? ApprovedByAdminId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string RequirementsMarkdown { get; set; } = string.Empty;
@@ -22,5 +21,6 @@ namespace CG.DTO.JobPosting
         public bool IsActive { get; set; }
         public DateTime PostedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public CompanyDto Company { get; set; } = null!;
     }
 }

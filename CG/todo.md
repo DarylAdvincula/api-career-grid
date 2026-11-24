@@ -1,39 +1,7 @@
-- [/] User Sessions
-    - [/] User Session Table
-        - [/] Model
-        - [/] Migration
-    - [/] IRepository
-    - [/] Repository
-        - [/] Program.cs Registration
-    - [/] IService
-    - [/] Service
-        - [/] Program.cs Registration
-
-- [/] Authentication
-    - [/] User Registration
-        - [/] Email Verification
-        - [/] As Applicant
-    - [/] User Login
-    - [/] Log out
-
-- [ ] Recovery
-    - [ ] Reset Password
-        - [ ] Email Confirmation
-    - [ ] Change Password
-        - [ ] Email Confirmation
-
-- [ ] Authorization
-    - [ ] Admin
-    - [ ] Employer
-        - [ ] Owner
-        - [ ] Admin
-        - [ ] Recruiter
-        - [ ] Hiring Manager
-    - [ ] Applicant
-
 - [ ] Other Upload Features
     - [ ] Company Logo
     - [ ] Applicant Profile Picture
+    - [ ] Require Resume Format as PDF
 
 - [ ] Logging
 
@@ -54,3 +22,34 @@
             - [ ] Hiring Manager
                 - [/] Registration
 
+- [ ] Basic Mailing Trigger Events
+    - [ ] Global
+        - [ ] Password Reset Requests
+    - [ ] System Admin
+        - [ ] Company Registration Requests
+    - [ ] Employer
+        - [ ] Owner
+            - [/] Email Verification Link
+            - [/] Email Verified
+            - [ ] Company Registration Approval
+            - [ ] Company Join Requests from Employees
+        - [ ] Admin
+            - [/] Email Verification Link
+            - [/] Email Verified
+            - [ ] New Pending for Approval Job Postings from Recruiter
+        - [ ] Hiring Manager
+            - [/] Email Verification Link
+            - [/] Email Verified
+            - [ ] New Applications
+        - [ ] Recruiter
+            - [/] Email Verification Link
+            - [/] Email Verified
+            - [ ] Created Job Posting Progress
+    - [ ] Applicant
+        - [/] Email Verification Link
+        - [/] Email Verified
+        - [ ] Job Application Progress
+
+- [ ] Ungrouped
+    - [ ] "Applied" indicator on job postings for applicants' job posting feed
+    - [ ] Company information in job postings

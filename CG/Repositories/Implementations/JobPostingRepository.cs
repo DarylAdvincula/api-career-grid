@@ -16,12 +16,14 @@ namespace CG.Repositories.Implementations
 
         public async Task<JobPosting?> GetByIdAsync(int id)
         {
-            return await _context.JobPostings.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.JobPostings.Include(x => x.Company)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<IEnumerable<JobPosting>> GetAllByCompanyIdAsync(int companyId)
         {
             return await _context.JobPostings.Where(x => x.CompanyId == companyId)
+                .Include(x => x.Company)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -43,7 +45,7 @@ namespace CG.Repositories.Implementations
             if (active is not null)
                 jobPostingsQuery = jobPostingsQuery.Where(x => x.IsActive == active);
 
-            return await jobPostingsQuery
+            return await jobPostingsQuery.Include(x => x.Company)
                 .AsNoTracking()
                 .ToListAsync();
         }

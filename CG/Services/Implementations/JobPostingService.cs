@@ -1,3 +1,4 @@
+using CG.DTO.Company;
 using CG.DTO.JobPosting;
 using CG.Exceptions;
 using CG.Helpers.Implementations;
@@ -44,8 +45,6 @@ namespace CG.Services.Implementations
                 Id = jobPosting.Id,
                 CompanyId = jobPosting.CompanyId,
                 CreatedByEmployerId = jobPosting.CreatedByEmployerId,
-                JobClassificationId = jobPosting.JobClassificationId,
-                JobSubClassificationId = jobPosting.JobSubClassificationId,
                 ApprovedByAdminId = jobPosting.ApprovedByAdminId,
                 Title = jobPosting.Title,
                 RequirementsMarkdown = jobPosting.RequirementsMarkdown,
@@ -59,6 +58,18 @@ namespace CG.Services.Implementations
                 IsActive = jobPosting.IsActive,
                 PostedAt = jobPosting.PostedAt,
                 UpdatedAt = jobPosting.UpdatedAt,
+                Company = new CompanyDto
+                {
+                    Id = jobPosting.Company.Id,
+                    Name = jobPosting.Company.Name,
+                    Description = jobPosting.Company.Description,
+                    ApprovedAt = jobPosting.Company.ApprovedAt,
+                    CreatedAt = jobPosting.Company.CreatedAt,
+                    LogoUrl = jobPosting.Company.LogoUrl,
+                    VerificationStatus = jobPosting.Company.VerificationStatus,
+                    WebsiteUrl = jobPosting.Company.WebsiteUrl,
+                    ApprovedByAdminId = jobPosting.Company.ApprovedByAdminId
+                }
             };
         }
         
